@@ -1,222 +1,279 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FSD Safety Tracker</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FSD Safety Monitor</title>
 
-  <link rel="stylesheet" href="cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      padding: 0;
       font-family: Arial, sans-serif;
-      background: #0d1117;
-      color: #c9d1d9;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+      background: #0b0f14;
+      color: #e6edf3;
     }
 
     header {
-      background: #161b22;
-      padding: 18px;
       text-align: center;
-      border-bottom: 1px solid #30363d;
+      padding: 24px 16px 18px;
+      background: linear-gradient(to bottom, #111827, #0b0f14);
+      border-bottom: 1px solid #2b3440;
     }
 
     h1 {
       margin: 0;
-      color: #58a6ff;
       font-size: 2.2rem;
+      color: #69b7ff;
+      letter-spacing: 0.5px;
     }
 
-    .ticker-row {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 16px;
-      padding: 18px;
-      background: #11161d;
-    }
-
-    .ticker {
-      background: #21262d;
-      border: 1px solid #30363d;
-      border-radius: 10px;
-      padding: 18px 28px;
-      min-width: 220px;
-      text-align: center;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
-    }
-
-    .ticker-label {
+    .subtitle {
+      margin-top: 8px;
+      color: #96a3b3;
       font-size: 0.95rem;
-      color: #8b949e;
-      margin-bottom: 8px;
     }
 
-    .ticker-value {
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      padding: 20px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: #151b23;
+      border: 1px solid #2b3440;
+      border-radius: 14px;
+      padding: 18px;
+      text-align: center;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+
+    .label {
+      font-size: 0.95rem;
+      color: #98a6b7;
+      margin-bottom: 10px;
+    }
+
+    .value {
       font-size: 2rem;
       font-weight: bold;
     }
 
-    #lives { color: #3fb950; }
-    #accidents { color: #58a6ff; }
-    #savings { color: #f85149; }
+    #miles { color: #69b7ff; }
+    #accidents { color: #7ddc85; }
+    #savings { color: #ff8b6b; }
+    #lives { color: #d7a8ff; }
 
-    .tab-buttons {
+    .tabs {
       display: flex;
       justify-content: center;
       gap: 10px;
-      padding: 14px;
-      background: #161b22;
-      border-top: 1px solid #30363d;
-      border-bottom: 1px solid #30363d;
+      padding: 6px 16px 18px;
+      flex-wrap: wrap;
     }
 
     .tab-btn {
-      background: #21262d;
-      border: 1px solid #30363d;
-      color: #c9d1d9;
+      background: #151b23;
+      color: #d7dee7;
+      border: 1px solid #2b3440;
+      border-radius: 10px;
       padding: 10px 18px;
-      border-radius: 8px;
       cursor: pointer;
       font-size: 0.95rem;
     }
 
     .tab-btn.active {
-      background: #30363d;
-      border-color: #58a6ff;
-      color: #58a6ff;
+      border-color: #69b7ff;
+      color: #69b7ff;
+      background: #1b2430;
     }
 
-    .tab-content {
-      flex: 1;
-      padding: 18px;
+    .content {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 20px 24px;
     }
 
-    .tab-pane {
+    .pane {
       display: none;
     }
 
-    .tab-pane.active {
+    .pane.active {
       display: block;
     }
 
-    #us-map, #world-map {
+    #us-map,
+    #world-map {
       width: 100%;
       height: 62vh;
-      min-height: 500px;
-      border: 1px solid #30363d;
-      border-radius: 10px;
+      min-height: 460px;
+      border-radius: 14px;
       overflow: hidden;
-      background: #0d1117;
+      border: 1px solid #2b3440;
+      background: #111827;
     }
 
-    .info-box {
-      max-width: 850px;
-      margin: 20px auto;
+    .info-panel {
+      background: #151b23;
+      border: 1px solid #2b3440;
+      border-radius: 14px;
+      padding: 22px;
       line-height: 1.7;
-      background: #161b22;
-      border: 1px solid #30363d;
-      border-radius: 10px;
-      padding: 20px;
+      color: #d7dee7;
+    }
+
+    .info-panel h2 {
+      margin-top: 0;
+      color: #69b7ff;
+    }
+
+    .legend {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #aab6c4;
+      font-size: 0.95rem;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
     }
 
     footer {
       text-align: center;
-      padding: 12px;
+      color: #92a0b0;
       font-size: 0.85rem;
-      color: #8b949e;
-      border-top: 1px solid #30363d;
-      background: #11161d;
+      padding: 14px;
+      border-top: 1px solid #2b3440;
+      background: #0b0f14;
     }
   </style>
 </head>
 <body>
-
   <header>
-    <h1>FSD Safety Tracker</h1>
+    <h1>FSD Safety Monitor</h1>
+    <div class="subtitle">Live simulation dashboard with map activity and safety impact estimates</div>
   </header>
 
-  <div class="ticker-row">
-    <div class="ticker">
-      <div class="ticker-label">Lives Saved</div>
-      <div class="ticker-value" id="lives">69.00</div>
+  <section class="stats">
+    <div class="card">
+      <div class="label">FSD Miles Tracked</div>
+      <div class="value" id="miles">8.620 B</div>
     </div>
+    <div class="card">
+      <div class="label">Accidents Avoided</div>
+      <div class="value" id="accidents">0.00</div>
+    </div>
+    <div class="card">
+      <div class="label">Estimated Savings</div>
+      <div class="value" id="savings">$0.000 B</div>
+    </div>
+    <div class="card">
+      <div class="label">Estimated Lives Saved</div>
+      <div class="value" id="lives">0.000</div>
+    </div>
+  </section>
 
-    <div class="ticker">
-      <div class="ticker-label">Accidents Avoided</div>
-      <div class="ticker-value" id="accidents">11434.00</div>
-    </div>
-
-    <div class="ticker">
-      <div class="ticker-label">$ Saved</div>
-      <div class="ticker-value" id="savings">$1.600 B</div>
-    </div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('us', this)">US Activity</button>
+    <button class="tab-btn" onclick="showTab('world', this)">Global Activity</button>
+    <button class="tab-btn" onclick="showTab('info', this)">How It Works</button>
   </div>
 
-  <div class="tab-buttons">
-    <button class="tab-btn active" onclick="showTab('us', this)">US Map</button>
-    <button class="tab-btn" onclick="showTab('world', this)">World Map</button>
-    <button class="tab-btn" onclick="showTab('data', this)">Additional Data</button>
-  </div>
-
-  <div class="tab-content">
-    <div id="us" class="tab-pane active">
+  <main class="content">
+    <section id="us" class="pane active">
       <div id="us-map"></div>
-    </div>
+    </section>
 
-    <div id="world" class="tab-pane">
+    <section id="world" class="pane">
       <div id="world-map"></div>
-    </div>
+    </section>
 
-    <div id="data" class="tab-pane">
-      <div class="info-box">
-        <h2 style="text-align:center; margin-top:0;">Additional Information</h2>
-        • Simulated public-facing dashboard concept<br>
-        • Counters update every second for visible live movement<br>
-        • Dark interactive maps powered by Leaflet<br>
-        • This is a demonstration build, not official Tesla data
+    <section id="info" class="pane">
+      <div class="info-panel">
+        <h2>About this dashboard</h2>
+        <p>
+          This version is designed to be stable and readable. The counters update every second from one baseline and one growth rate, instead of jumping with random values. The maps use fixed activity zones so the page stays clean and reliable.
+        </p>
+        <p>
+          The numbers below are simulation estimates built from a starting mileage total, a miles-per-day growth assumption, and a comparison between a human crash rate and an FSD crash rate. This keeps the dashboard moving in a smooth and believable way.
+        </p>
+
+        <div class="legend">
+          <div class="legend-item"><span class="dot" style="background:#ff8b6b;"></span> High activity</div>
+          <div class="legend-item"><span class="dot" style="background:#69b7ff;"></span> Growth zone</div>
+          <div class="legend-item"><span class="dot" style="background:#7ddc85;"></span> Safer zone</div>
+          <div class="legend-item"><span class="dot" style="background:#d7a8ff;"></span> Life impact estimate</div>
+        </div>
       </div>
-    </div>
-  </div>
+    </section>
+  </main>
 
   <footer>
-    Simulated real-time tracker • Not official Tesla data • For illustration only
+    Simulated live dashboard • Not official Tesla data • Built for demonstration
   </footer>
 
   <script src="cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    let lives = 69.00;
-    let accidents = 11434.00;
-    let savings = 1.600;
-
-    const livesEl = document.getElementById("lives");
+    const milesEl = document.getElementById("miles");
     const accidentsEl = document.getElementById("accidents");
     const savingsEl = document.getElementById("savings");
+    const livesEl = document.getElementById("lives");
+
+    const START_TIME = Date.now();
+
+    const START_MILES = 8.62e9;
+    const MILES_PER_DAY = 20e6;
+
+    const HUMAN_CRASH_RATE = 660000;
+    const FSD_CRASH_RATE = 5300000;
+    const FATALITY_RATE_PER_CRASH = 0.006;
+    const AVG_ACCIDENT_COST = 56000;
+    const VSL = 13700000;
 
     function updateStats() {
-      lives += 0.03;
-      accidents += 4.25;
-      savings += 0.002;
+      const elapsedMs = Date.now() - START_TIME;
+      const elapsedDays = elapsedMs / 86400000;
 
-      livesEl.textContent = lives.toFixed(2);
-      accidentsEl.textContent = accidents.toLocaleString(undefined, {
+      const miles = START_MILES + (elapsedDays * MILES_PER_DAY);
+      const humanCrashes = miles / HUMAN_CRASH_RATE;
+      const fsdCrashes = miles / FSD_CRASH_RATE;
+      const avoided = humanCrashes - fsdCrashes;
+      const lives = avoided * FATALITY_RATE_PER_CRASH;
+      const savings = (avoided * AVG_ACCIDENT_COST) + (lives * VSL);
+
+      milesEl.textContent = (miles / 1e9).toFixed(3) + " B";
+      accidentsEl.textContent = avoided.toLocaleString(undefined, {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
       });
-      savingsEl.textContent = "$" + savings.toFixed(3) + " B";
+      savingsEl.textContent = "$" + (savings / 1e9).toFixed(3) + " B";
+      livesEl.textContent = lives.toFixed(3);
     }
-
-    setInterval(updateStats, 1000);
 
     const darkTiles = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
 
-    const usMap = L.map("us-map");
-    const worldMap = L.map("world-map");
+    const usMap = L.map("us-map", { zoomControl: true, attributionControl: true });
+    const worldMap = L.map("world-map", { zoomControl: true, attributionControl: true });
 
     L.tileLayer(darkTiles, {
       attribution: "© OpenStreetMap & Carto"
@@ -227,42 +284,42 @@
     }).addTo(worldMap);
 
     usMap.setView([39.5, -98.35], 4);
-    worldMap.setView([20, 0], 2);
+    worldMap.setView([20, 10], 2);
 
-    const usHotspots = [
-      { lat: 34.05, lng: -118.24, radius: 220000, color: "#f85149", popup: "Los Angeles - High activity" },
-      { lat: 29.76, lng: -95.36, radius: 240000, color: "#f85149", popup: "Houston - High activity" },
-      { lat: 25.76, lng: -80.19, radius: 180000, color: "#58a6ff", popup: "Miami - Moderate activity" },
-      { lat: 40.71, lng: -74.00, radius: 160000, color: "#3fb950", popup: "New York - Safer zone" }
+    const usZones = [
+      { lat: 34.05, lng: -118.24, radius: 240000, color: "#ff8b6b", popup: "Los Angeles • High activity" },
+      { lat: 37.77, lng: -122.42, radius: 220000, color: "#69b7ff", popup: "San Francisco • Growth zone" },
+      { lat: 29.76, lng: -95.36, radius: 230000, color: "#ff8b6b", popup: "Houston • High activity" },
+      { lat: 40.71, lng: -74.00, radius: 160000, color: "#7ddc85", popup: "New York • Safer zone" }
     ];
 
-    const worldHotspots = [
-      { lat: 51.50, lng: -0.12, radius: 180000, color: "#58a6ff", popup: "London - Activity zone" },
-      { lat: 48.85, lng: 2.35, radius: 170000, color: "#58a6ff", popup: "Paris - Activity zone" },
-      { lat: 35.68, lng: 139.69, radius: 220000, color: "#f85149", popup: "Tokyo - High activity" },
-      { lat: -33.87, lng: 151.21, radius: 190000, color: "#3fb950", popup: "Sydney - Safer zone" }
+    const worldZones = [
+      { lat: 51.50, lng: -0.12, radius: 180000, color: "#69b7ff", popup: "London • Growth zone" },
+      { lat: 48.85, lng: 2.35, radius: 180000, color: "#69b7ff", popup: "Paris • Growth zone" },
+      { lat: 35.68, lng: 139.69, radius: 230000, color: "#ff8b6b", popup: "Tokyo • High activity" },
+      { lat: -33.87, lng: 151.21, radius: 180000, color: "#7ddc85", popup: "Sydney • Safer zone" }
     ];
 
-    usHotspots.forEach(h => {
-      L.circle([h.lat, h.lng], {
-        color: h.color,
-        fillColor: h.color,
+    usZones.forEach(zone => {
+      L.circle([zone.lat, zone.lng], {
+        color: zone.color,
+        fillColor: zone.color,
         fillOpacity: 0.35,
-        radius: h.radius
-      }).addTo(usMap).bindPopup(h.popup);
+        radius: zone.radius
+      }).addTo(usMap).bindPopup(zone.popup);
     });
 
-    worldHotspots.forEach(h => {
-      L.circle([h.lat, h.lng], {
-        color: h.color,
-        fillColor: h.color,
+    worldZones.forEach(zone => {
+      L.circle([zone.lat, zone.lng], {
+        color: zone.color,
+        fillColor: zone.color,
         fillOpacity: 0.35,
-        radius: h.radius
-      }).addTo(worldMap).bindPopup(h.popup);
+        radius: zone.radius
+      }).addTo(worldMap).bindPopup(zone.popup);
     });
 
     function showTab(id, button) {
-      document.querySelectorAll(".tab-pane").forEach(pane => pane.classList.remove("active"));
+      document.querySelectorAll(".pane").forEach(pane => pane.classList.remove("active"));
       document.getElementById(id).classList.add("active");
 
       document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
@@ -275,12 +332,15 @@
         }
         if (id === "world") {
           worldMap.invalidateSize();
-          worldMap.setView([20, 0], 2);
+          worldMap.setView([20, 10], 2);
         }
       }, 250);
     }
 
     window.addEventListener("load", () => {
+      updateStats();
+      setInterval(updateStats, 1000);
+
       setTimeout(() => {
         usMap.invalidateSize();
         usMap.setView([39.5, -98.35], 4);
