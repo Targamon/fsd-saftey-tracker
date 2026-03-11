@@ -1,265 +1,240 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2575.7">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 13.3px Menlo; color: #1a1a1a; -webkit-text-stroke: #000000; background-color: #ffffff}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 13.3px Menlo; color: #1a1a1a; -webkit-text-stroke: #000000; background-color: #ffffff; min-height: 15.0px}
-    p.p3 {margin: 0.0px 0.0px 0.0px 0.0px; font: 13.3px Menlo; color: #103cc0; -webkit-text-stroke: #103cc0; background-color: #ffffff}
-    span.s1 {font-kerning: none}
-    span.s2 {text-decoration: underline ; font-kerning: none; color: #103cc0; -webkit-text-stroke: 0px #103cc0}
-    span.s3 {font-kerning: none; color: #1a1a1a; -webkit-text-stroke: 0px #000000}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FSD Safety Tracker</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5n/N0RDw4Ro=" crossorigin="anonymous"/>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #0d1117;
+            color: #c9d1d9;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        header {
+            background: #161b22;
+            padding: 16px;
+            text-align: center;
+            border-bottom: 1px solid #30363d;
+        }
+        h1 {
+            margin: 0;
+            font-size: 2.1rem;
+            color: #58a6ff;
+        }
+        .ticker-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 16px;
+            padding: 16px;
+            background: #0d1117;
+        }
+        .ticker {
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 16px 24px;
+            min-width: 220px;
+            text-align: center;
+        }
+        .ticker-label {
+            font-size: 0.95rem;
+            color: #8b949e;
+            margin-bottom: 6px;
+        }
+        .ticker-value {
+            font-size: 2.1rem;
+            font-weight: bold;
+        }
+        #lives { color: #3fb950; }
+        #accidents { color: #58a6ff; }
+        #savings { color: #f85149; }
+
+        .tab-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px;
+            background: #161b22;
+            border-bottom: 1px solid #30363d;
+        }
+        .tab-btn {
+            background: #21262d;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .tab-btn.active {
+            background: #30363d;
+            border-color: #58a6ff;
+            color: #58a6ff;
+        }
+
+        .tab-content {
+            flex: 1;
+            padding: 16px;
+        }
+        .tab-pane {
+            display: none;
+        }
+        .tab-pane.active {
+            display: block;
+        }
+
+        #us-map, #world-map {
+            height: 60vh;
+            min-height: 500px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #30363d;
+        }
+
+        footer {
+            text-align: center;
+            padding: 12px;
+            font-size: 0.85rem;
+            color: #8b949e;
+            border-top: 1px solid #30363d;
+        }
+    </style>
 </head>
 <body>
-<p class="p1"><span class="s1">&lt;!DOCTYPE html&gt;</span></p>
-<p class="p1"><span class="s1">&lt;html lang="en"&gt;</span></p>
-<p class="p1"><span class="s1">&lt;head&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;title&gt;FSD Safety Tracker&lt;/title&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;link rel="stylesheet" href="<a href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><span class="s2">https://unpkg.com/leaflet@1.9.4/dist/leaflet.css</span></a>" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5n/N0RDw4Ro=" crossorigin="anonymous"/&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;style&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>body {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>margin: 0;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>padding: 0;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>background: #0d1117;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>color: #c9d1d9;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>min-height: 100vh;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>display: flex;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>flex-direction: column;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>header {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>background: #161b22;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>padding: 16px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>text-align: center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>border-bottom: 1px solid #30363d;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>h1 {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>margin: 0;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>font-size: 2.1rem;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>color: #58a6ff;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>.ticker-row {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>display: flex;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>flex-wrap: wrap;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>justify-content: center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>gap: 16px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>padding: 16px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>background: #0d1117;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>.ticker {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>background: #21262d;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>border: 1px solid #30363d;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>border-radius: 8px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>padding: 16px 24px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>min-width: 220px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>text-align: center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>.ticker-label {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>font-size: 0.95rem;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>color: #8b949e;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>margin-bottom: 6px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>.ticker-value {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>font-size: 2.1rem;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>font-weight: bold;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>#lives <span class="Apple-converted-space">  </span>{ color: #3fb950; }</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>#accidents { color: #58a6ff; }</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>#savings<span class="Apple-converted-space">  </span>{ color: #f85149; }</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>.tab-buttons {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>display: flex;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>justify-content: center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>gap: 8px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>padding: 12px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>background: #161b22;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>border-bottom: 1px solid #30363d;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>.tab-btn {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>background: #21262d;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>border: 1px solid #30363d;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>color: #c9d1d9;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>padding: 10px 20px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>border-radius: 6px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>cursor: pointer;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>font-size: 1rem;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>.tab-btn.active {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>background: #30363d;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>border-color: #58a6ff;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>color: #58a6ff;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>.tab-content {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>flex: 1;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>padding: 16px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>.tab-pane {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>display: none;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>.tab-pane.active {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>display: block;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>#us-map, #world-map {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>height: 60vh;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>min-height: 500px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>border-radius: 8px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>overflow: hidden;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>border: 1px solid #30363d;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>footer {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>text-align: center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>padding: 12px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>font-size: 0.85rem;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>color: #8b949e;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>border-top: 1px solid #30363d;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/head&gt;</span></p>
-<p class="p1"><span class="s1">&lt;body&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">&lt;header&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;h1&gt;FSD Safety Tracker&lt;/h1&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/header&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">&lt;div class="ticker-row"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div class="ticker"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;div class="ticker-label"&gt;Lives Saved&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;div class="ticker-value" id="lives"&gt;0&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div class="ticker"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;div class="ticker-label"&gt;Accidents Avoided&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;div class="ticker-value" id="accidents"&gt;0&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div class="ticker"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;div class="ticker-label"&gt;$ Saved&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;div class="ticker-value" id="savings"&gt;$0 B&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">&lt;div class="tab-buttons"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;button class="tab-btn active" onclick="showTab('us')"&gt;US Map&lt;/button&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;button class="tab-btn" onclick="showTab('world')"&gt;World Map&lt;/button&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;button class="tab-btn" onclick="showTab('data')"&gt;Additional Data&lt;/button&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">&lt;div class="tab-content"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div id="us" class="tab-pane active"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;div id="us-map"&gt;&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div id="world" class="tab-pane"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;div id="world-map"&gt;&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div id="data" class="tab-pane"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;h2 style="text-align:center"&gt;Additional Information&lt;/h2&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;p style="max-width:800px; margin:0 auto 20px auto; line-height:1.6;"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>• Data based on public Tesla FSD statistics (March 2026)&lt;br&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>• ~8.6+ billion cumulative miles driven&lt;br&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>• ~20 million new miles per day&lt;br&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>• FSD crash rate ≈ 1 per 5.3 million miles&lt;br&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>• Human average ≈ 1 per 660,000 miles&lt;br&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>• Savings equation: (avoided crashes × $56,000) + (lives saved × $13.7M VSL)&lt;br&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>• Colors: &lt;span style="color:#3fb950"&gt;green&lt;/span&gt; = lives saved, &lt;span style="color:#58a6ff"&gt;blue&lt;/span&gt; = accidents avoided, &lt;span style="color:#f85149"&gt;red&lt;/span&gt; = dollars saved</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;/p&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">&lt;footer&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>Simulated real-time tracker • Not official Tesla data • For illustration only</span></p>
-<p class="p1"><span class="s1">&lt;/footer&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">&lt;script src="<a href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"><span class="s2">https://unpkg.com/leaflet@1.9.4/dist/leaflet.js</span></a>" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"&gt;&lt;/script&gt;</span></p>
-<p class="p1"><span class="s1">&lt;script&gt;</span></p>
-<p class="p1"><span class="s1">// ────────────────────────────────────────────────</span></p>
-<p class="p1"><span class="s1">//<span class="Apple-converted-space">  </span>Real-time FSD impact calculation</span></p>
-<p class="p1"><span class="s1">// ────────────────────────────────────────────────</span></p>
-<p class="p1"><span class="s1">const START_MILES = 8.62e9; <span class="Apple-converted-space">              </span>// March 11, 2026 estimate</span></p>
-<p class="p1"><span class="s1">const MILES_PER_DAY = 20e6;</span></p>
-<p class="p1"><span class="s1">const FSD_CRASH_RATE = 5.3e6; <span class="Apple-converted-space">            </span>// miles per crash</span></p>
-<p class="p1"><span class="s1">const HUMAN_CRASH_RATE = 660e3;</span></p>
-<p class="p1"><span class="s1">const FATALITY_RATE_PER_CRASH = 0.006;</span></p>
-<p class="p1"><span class="s1">const AVG_ACCIDENT_COST = 56000;</span></p>
-<p class="p1"><span class="s1">const VSL = 13700000; <span class="Apple-converted-space">                    </span>// Value of Statistical Life</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">let start = Date.now() / 1000;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">function updateStats() {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const elapsedSec = (Date.now() / 1000) - start;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const miles = START_MILES + (elapsedSec / 86400) * MILES_PER_DAY;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const expectedCrashes = miles / HUMAN_CRASH_RATE;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const actualCrashes <span class="Apple-converted-space">  </span>= miles / FSD_CRASH_RATE;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const avoided <span class="Apple-converted-space">        </span>= expectedCrashes - actualCrashes;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const lives <span class="Apple-converted-space">          </span>= avoided * FATALITY_RATE_PER_CRASH;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>const dollars <span class="Apple-converted-space">        </span>= avoided * AVG_ACCIDENT_COST + lives * VSL;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>document.getElementById("lives").textContent <span class="Apple-converted-space">    </span>= Math.round(lives).toLocaleString();</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>document.getElementById("accidents").textContent = Math.round(avoided).toLocaleString();</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>document.getElementById("savings").textContent <span class="Apple-converted-space">  </span>= (dollars / 1e9).toFixed(1) + " B";</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">setInterval(updateStats, 1300);</span></p>
-<p class="p1"><span class="s1">updateStats();</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">// ────────────────────────────────────────────────</span></p>
-<p class="p1"><span class="s1">//<span class="Apple-converted-space">  </span>Tab switching</span></p>
-<p class="p1"><span class="s1">// ────────────────────────────────────────────────</span></p>
-<p class="p1"><span class="s1">function showTab(id) {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>document.querySelectorAll(".tab-pane").forEach(p =&gt; p.classList.remove("active"));</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>document.getElementById(id).classList.add("active");</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>document.querySelectorAll(".tab-btn").forEach(b =&gt; b.classList.remove("active"));</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>event.target.classList.add("active");</span></p>
-<p class="p1"><span class="s1">}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">// ────────────────────────────────────────────────</span></p>
-<p class="p1"><span class="s1">//<span class="Apple-converted-space">  </span>Dark-themed maps</span></p>
-<p class="p1"><span class="s1">// ────────────────────────────────────────────────</span></p>
-<p class="p3"><span class="s3">const darkTiles = 'https://{s}.<a href="http://basemaps.cartocdn.com/dark_all/%7Bz%7D/%7Bx%7D/%7By%7D%7Br%7D.png"><span class="s2">basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png</span></a>';</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">const usMap = L.map('us-map').setView([37.8, -96], 4);</span></p>
-<p class="p1"><span class="s1">L.tileLayer(darkTiles, { attribution: '© OpenStreetMap &amp; Carto' }).addTo(usMap);</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">const worldMap = L.map('world-map').setView([20, 0], 2);</span></p>
-<p class="p1"><span class="s1">L.tileLayer(darkTiles, { attribution: '© OpenStreetMap &amp; Carto' }).addTo(worldMap);</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">// Simple mock hotspots (replace with real data later)</span></p>
-<p class="p1"><span class="s1">const hotspots = [</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>{lat:36.1, lng:-119.4, radius:300000, color:"#f85149", popup:"California - High activity"},</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>{lat:31.1, lng:-99.9,<span class="Apple-converted-space">  </span>radius:350000, color:"#f85149", popup:"Texas - High activity"},</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>{lat:28.0, lng:-81.8,<span class="Apple-converted-space">  </span>radius:250000, color:"#f85149", popup:"Florida - Moderate"},</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>{lat:40.7, lng:-74.0,<span class="Apple-converted-space">  </span>radius:180000, color:"#3fb950", popup:"New York - Safer zone"}</span></p>
-<p class="p1"><span class="s1">];</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">hotspots.forEach(h =&gt; {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>L.circle([h.lat, h.lng], {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>color: h.color,</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>fillColor: h.color,</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>fillOpacity: 0.4,</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>radius: h.radius</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}).addTo(usMap).bindPopup(h.popup);</span></p>
-<p class="p1"><span class="s1">});</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">hotspots.forEach(h =&gt; {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>L.circle([h.lat*0.9 + 20, h.lng*0.5], {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>color: h.color,</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>fillColor: h.color,</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>fillOpacity: 0.4,</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>radius: h.radius * 0.6</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>}).addTo(worldMap).bindPopup(h.popup + " (global sim)");</span></p>
-<p class="p1"><span class="s1">});</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">&lt;/script&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/body&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/html&gt;</span></p>
+
+<header>
+    <h1>FSD Safety Tracker</h1>
+</header>
+
+<div class="ticker-row">
+    <div class="ticker">
+        <div class="ticker-label">Lives Saved</div>
+        <div class="ticker-value" id="lives">0</div>
+    </div>
+    <div class="ticker">
+        <div class="ticker-label">Accidents Avoided</div>
+        <div class="ticker-value" id="accidents">0</div>
+    </div>
+    <div class="ticker">
+        <div class="ticker-label">$ Saved</div>
+        <div class="ticker-value" id="savings">$0 B</div>
+    </div>
+</div>
+
+<div class="tab-buttons">
+    <button class="tab-btn active" onclick="showTab('us', this)">US Map</button>
+    <button class="tab-btn" onclick="showTab('world', this)">World Map</button>
+    <button class="tab-btn" onclick="showTab('data', this)">Additional Data</button>
+</div>
+
+<div class="tab-content">
+    <div id="us" class="tab-pane active">
+        <div id="us-map"></div>
+    </div>
+    <div id="world" class="tab-pane">
+        <div id="world-map"></div>
+    </div>
+    <div id="data" class="tab-pane">
+        <h2 style="text-align:center">Additional Information</h2>
+        <p style="max-width:800px; margin:0 auto 20px auto; line-height:1.6;">
+            • Data based on public Tesla FSD statistics (March 2026)<br>
+            • ~8.6+ billion cumulative miles driven<br>
+            • ~20 million new miles per day<br>
+            • FSD crash rate ≈ 1 per 5.3 million miles<br>
+            • Human average ≈ 1 per 660,000 miles<br>
+            • Savings equation: (avoided crashes × $56,000) + (lives saved × $13.7M VSL)<br>
+            • Colors: <span style="color:#3fb950">green</span> = lives saved, <span style="color:#58a6ff">blue</span> = accidents avoided, <span style="color:#f85149">red</span> = dollars saved
+        </p>
+    </div>
+</div>
+
+<footer>
+    Simulated real-time tracker • Not official Tesla data • For illustration only
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
+<script>
+const START_MILES = 8.62e9;
+const MILES_PER_DAY = 20e6;
+const FSD_CRASH_RATE = 5.3e6;
+const HUMAN_CRASH_RATE = 660e3;
+const FATALITY_RATE_PER_CRASH = 0.006;
+const AVG_ACCIDENT_COST = 56000;
+const VSL = 13700000;
+
+let start = Date.now() / 1000;
+
+function updateStats() {
+    const elapsedSec = (Date.now() / 1000) - start;
+    const miles = START_MILES + (elapsedSec / 86400) * MILES_PER_DAY;
+
+    const expectedCrashes = miles / HUMAN_CRASH_RATE;
+    const actualCrashes = miles / FSD_CRASH_RATE;
+    const avoided = expectedCrashes - actualCrashes;
+    const lives = avoided * FATALITY_RATE_PER_CRASH;
+    const dollars = avoided * AVG_ACCIDENT_COST + lives * VSL;
+
+    document.getElementById("lives").textContent = Math.round(lives).toLocaleString();
+    document.getElementById("accidents").textContent = Math.round(avoided).toLocaleString();
+    document.getElementById("savings").textContent = (dollars / 1e9).toFixed(1) + " B";
+}
+
+setInterval(updateStats, 1300);
+updateStats();
+
+function showTab(id, button) {
+    document.querySelectorAll(".tab-pane").forEach(p => p.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    button.classList.add("active");
+
+    setTimeout(() => {
+        if (id === "us") usMap.invalidateSize();
+        if (id === "world") worldMap.invalidateSize();
+    }, 100);
+}
+
+const darkTiles = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+
+const usMap = L.map('us-map').setView([37.8, -96], 4);
+L.tileLayer(darkTiles, { attribution: '© OpenStreetMap & Carto' }).addTo(usMap);
+
+const worldMap = L.map('world-map').setView([20, 0], 2);
+L.tileLayer(darkTiles, { attribution: '© OpenStreetMap & Carto' }).addTo(worldMap);
+
+const hotspots = [
+    {lat:36.1, lng:-119.4, radius:300000, color:"#f85149", popup:"California - High activity"},
+    {lat:31.1, lng:-99.9, radius:350000, color:"#f85149", popup:"Texas - High activity"},
+    {lat:28.0, lng:-81.8, radius:250000, color:"#f85149", popup:"Florida - Moderate"},
+    {lat:40.7, lng:-74.0, radius:180000, color:"#3fb950", popup:"New York - Safer zone"}
+];
+
+hotspots.forEach(h => {
+    L.circle([h.lat, h.lng], {
+        color: h.color,
+        fillColor: h.color,
+        fillOpacity: 0.4,
+        radius: h.radius
+    }).addTo(usMap).bindPopup(h.popup);
+});
+
+hotspots.forEach(h => {
+    L.circle([h.lat * 0.9 + 20, h.lng * 0.5], {
+        color: h.color,
+        fillColor: h.color,
+        fillOpacity: 0.4,
+        radius: h.radius * 0.6
+    }).addTo(worldMap).bindPopup(h.popup + " (global sim)");
+});
+</script>
+
 </body>
 </html>
