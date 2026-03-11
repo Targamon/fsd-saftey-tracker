@@ -129,9 +129,9 @@
 </div>
 
 <div class="tab-buttons">
-    <button class="tab-btn active" onclick="showTab('us', this)">US Map</button>
-    <button class="tab-btn" onclick="showTab('world', this)">World Map</button>
-    <button class="tab-btn" onclick="showTab('data', this)">Additional Data</button>
+<button class="tab-btn active" onclick="showTab('us', this)">US Map</button>
+<button class="tab-btn" onclick="showTab('world', this)">World Map</button>
+<button class="tab-btn" onclick="showTab('data', this)">Additional Data</button>
 </div>
 
 <div class="tab-content">
@@ -162,7 +162,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
 <script>
 const START_MILES = 8.62e9;
-const MILES_PER_DAY = 20e6;
+const MILES_PER_DAY = 500e6;
 const FSD_CRASH_RATE = 5.3e6;
 const HUMAN_CRASH_RATE = 660e3;
 const FATALITY_RATE_PER_CRASH = 0.006;
@@ -235,6 +235,93 @@ hotspots.forEach(h => {
     }).addTo(worldMap).bindPopup(h.popup + " (global sim)");
 });
 </script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
+<script>
+const START_MILES = 8.62e9;
+const MILES_PER_DAY = 20e6;
+const FSD_CRASH_RATE = 5.3e6;
+const HUMAN_CRASH_RATE = 660e3;
+const FATALITY_RATE_PER_CRASH = 0.006;
+const AVG_ACCIDENT_COST = 56000;
+const VSL = 13700000;
 
+const start = Date.now();
+
+function updateStats() {
+    const elapsedMs = Date.now() - start;
+    const elapsedDays = elapsedMs / 86400000;
+    const miles = START_MILES + elapsedDays * MILES_PER_DAY;
+
+    const expectedCrashes = miles / HUMAN_CRASH_RATE;
+    const actualCrashes = miles / FSD_CRASH_RATE;
+    const avoided = expectedCrashes - actualCrashes;
+    const lives = avoided * FATALITY_RATE_PER_CRASH;
+    const dollars = avoided * AVG_ACCIDENT_COST + lives * VSL;
+
+    document.getElementById("lives").textContent = Math.round(lives).toLocaleString();
+    document.getElementById("accidents").textContent = Math.round(avoided).toLocaleString();
+    document.getElementById("savings").textContent = (dollars / 1e9).toFixed(1) + " B";
+}
+
+function showTab(id, button) {
+    document.querySelectorAll(".tab-pane").forEach(pane => pane.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+
+    document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+    button.classList.add("active");
+
+    setTimeout(() => {
+        if (id === "us") usMap.invalidateSize();
+        if (id === "world") worldMap.invalidateSize();
+    }, 200);
+}
+
+const darkTiles = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
+
+const usMap = L.map("us-map").setView([37.8, -96], 4);
+L.tileLayer(darkTiles, {
+    attribution: "&copy; OpenStreetMap & Carto"
+}).addTo(usMap);
+
+const worldMap = L.map("world-map").setView([20, 0], 2);
+L.tileLayer(darkTiles, {
+    attribution: "&copy; OpenStreetMap & Carto"
+}).addTo(worldMap);
+
+const hotspots = [
+    { lat: 36.1, lng: -119.4, radius: 300000, color: "#f85149", popup: "California - High activity" },
+    { lat: 31.1, lng: -99.9, radius: 350000, color: "#f85149", popup: "Texas - High activity" },
+    { lat: 28.0, lng: -81.8, radius: 250000, color: "#f85149", popup: "Florida - Moderate" },
+    { lat: 40.7, lng: -74.0, radius: 180000, color: "#3fb950", popup: "New York - Safer zone" }
+];
+
+hotspots.forEach(h => {
+    L.circle([h.lat, h.lng], {
+        color: h.color,
+        fillColor: h.color,
+        fillOpacity: 0.4,
+        radius: h.radius
+    }).addTo(usMap).bindPopup(h.popup);
+});
+
+hotspots.forEach(h => {
+    L.circle([h.lat * 0.9 + 20, h.lng * 0.5], {
+        color: h.color,
+        fillColor: h.color,
+        fillOpacity: 0.4,
+        radius: h.radius * 0.6
+    }).addTo(worldMap).bindPopup(h.popup + " (global sim)");
+});
+
+updateStats();
+setInterval(updateStats, 1000);
+
+window.addEventListener("load", () => {
+    setTimeout(() => {
+        usMap.invalidateSize();
+        worldMap.invalidateSize();
+    }, 500);
+});
+</script>
 </body>
 </html>
