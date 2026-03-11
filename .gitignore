@@ -1,0 +1,21 @@
+.gitignore
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment variables
+.env
+
+# Dependency folders
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Editor folders
+.vscode/
+.idea/
