@@ -162,7 +162,7 @@
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 const START_MILES = 8.62e9;
-const MILES_PER_DAY = 500e6;
+const MILES_PER_DAY = 5e6;
 const FSD_CRASH_RATE = 5.3e6;
 const HUMAN_CRASH_RATE = 660e3;
 const FATALITY_RATE_PER_CRASH = 0.006;
@@ -187,17 +187,23 @@ function updateStats() {
     document.getElementById("savings").textContent = (dollars / 1e9).toFixed(1) + " B";
 }
 
-function showTab(id, button) {
+    function showTab(id, button) {
     document.querySelectorAll(".tab-pane").forEach(pane => pane.classList.remove("active"));
     document.getElementById(id).classList.add("active");
 
     document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
-    button.classList.add("active");
+    if (button) button.classList.add("active");
 
     setTimeout(() => {
-        if (id === "us") usMap.invalidateSize();
-        if (id === "world") worldMap.invalidateSize();
-    }, 200);
+    if (window.usMap) {
+        window.usMap.invalidateSize();
+        window.usMap.setView([37.8, -96], 4);
+    }
+    if (window.worldMap) {
+        window.worldMap.invalidateSize();
+        window.worldMap.setView([20, 0], 2);
+    }
+}, 1000);
 }
 
 const darkTiles = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
@@ -246,6 +252,12 @@ window.addEventListener("load", () => {
         worldMap.invalidateSize();
     }, 500);
 });
+
+    window.addEventListener("resize", () => {
+    if (window.usMap) window.usMap.invalidateSize();
+    if (window.worldMap) window.worldMap.invalidateSize();
+});
+
 </script>
 
 </body>
