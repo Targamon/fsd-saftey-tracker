@@ -1,264 +1,296 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FSD Safety Tracker</title>
-   <link rel="stylesheet" href="http://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: #0d1117;
-            color: #c9d1d9;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        header {
-            background: #161b22;
-            padding: 16px;
-            text-align: center;
-            border-bottom: 1px solid #30363d;
-        }
-        h1 {
-            margin: 0;
-            font-size: 2.1rem;
-            color: #58a6ff;
-        }
-        .ticker-row {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 16px;
-            padding: 16px;
-            background: #0d1117;
-        }
-        .ticker {
-            background: #21262d;
-            border: 1px solid #30363d;
-            border-radius: 8px;
-            padding: 16px 24px;
-            min-width: 220px;
-            text-align: center;
-        }
-        .ticker-label {
-            font-size: 0.95rem;
-            color: #8b949e;
-            margin-bottom: 6px;
-        }
-        .ticker-value {
-            font-size: 2.1rem;
-            font-weight: bold;
-        }
-        #lives { color: #3fb950; }
-        #accidents { color: #58a6ff; }
-        #savings { color: #f85149; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FSD Safety Tracker</title>
 
-        .tab-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            padding: 12px;
-            background: #161b22;
-            border-bottom: 1px solid #30363d;
-        }
-        .tab-btn {
-            background: #21262d;
-            border: 1px solid #30363d;
-            color: #c9d1d9;
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-        .tab-btn.active {
-            background: #30363d;
-            border-color: #58a6ff;
-            color: #58a6ff;
-        }
+  <link rel="stylesheet" href="cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 
-        .tab-content {
-            flex: 1;
-            padding: 16px;
-        }
-        .tab-pane {
-            display: none;
-        }
-        .tab-pane.active {
-            display: block;
-        }
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: #0d1117;
+      color: #c9d1d9;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
 
-        #us-map, #world-map {
-            height: 60vh;
-            min-height: 500px;
-            border-radius: 8px;
-            overflow: hidden;
-            border: 1px solid #30363d;
-        }
+    header {
+      background: #161b22;
+      padding: 18px;
+      text-align: center;
+      border-bottom: 1px solid #30363d;
+    }
 
-        footer {
-            text-align: center;
-            padding: 12px;
-            font-size: 0.85rem;
-            color: #8b949e;
-            border-top: 1px solid #30363d;
-        }
-    </style>
+    h1 {
+      margin: 0;
+      color: #58a6ff;
+      font-size: 2.2rem;
+    }
+
+    .ticker-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+      padding: 18px;
+      background: #11161d;
+    }
+
+    .ticker {
+      background: #21262d;
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      padding: 18px 28px;
+      min-width: 220px;
+      text-align: center;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+    }
+
+    .ticker-label {
+      font-size: 0.95rem;
+      color: #8b949e;
+      margin-bottom: 8px;
+    }
+
+    .ticker-value {
+      font-size: 2rem;
+      font-weight: bold;
+    }
+
+    #lives { color: #3fb950; }
+    #accidents { color: #58a6ff; }
+    #savings { color: #f85149; }
+
+    .tab-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px;
+      background: #161b22;
+      border-top: 1px solid #30363d;
+      border-bottom: 1px solid #30363d;
+    }
+
+    .tab-btn {
+      background: #21262d;
+      border: 1px solid #30363d;
+      color: #c9d1d9;
+      padding: 10px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    .tab-btn.active {
+      background: #30363d;
+      border-color: #58a6ff;
+      color: #58a6ff;
+    }
+
+    .tab-content {
+      flex: 1;
+      padding: 18px;
+    }
+
+    .tab-pane {
+      display: none;
+    }
+
+    .tab-pane.active {
+      display: block;
+    }
+
+    #us-map, #world-map {
+      width: 100%;
+      height: 62vh;
+      min-height: 500px;
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #0d1117;
+    }
+
+    .info-box {
+      max-width: 850px;
+      margin: 20px auto;
+      line-height: 1.7;
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 12px;
+      font-size: 0.85rem;
+      color: #8b949e;
+      border-top: 1px solid #30363d;
+      background: #11161d;
+    }
+  </style>
 </head>
 <body>
 
-<header>
+  <header>
     <h1>FSD Safety Tracker</h1>
-</header>
+  </header>
 
-<div class="ticker-row">
+  <div class="ticker-row">
     <div class="ticker">
-        <div class="ticker-label">Lives Saved</div>
-        <div class="ticker-value" id="lives">0</div>
+      <div class="ticker-label">Lives Saved</div>
+      <div class="ticker-value" id="lives">69.00</div>
     </div>
-    <div class="ticker">
-        <div class="ticker-label">Accidents Avoided</div>
-        <div class="ticker-value" id="accidents">0</div>
-    </div>
-    <div class="ticker">
-        <div class="ticker-label">$ Saved</div>
-        <div class="ticker-value" id="savings">$0 B</div>
-    </div>
-</div>
 
-<div class="tab-buttons">
+    <div class="ticker">
+      <div class="ticker-label">Accidents Avoided</div>
+      <div class="ticker-value" id="accidents">11434.00</div>
+    </div>
+
+    <div class="ticker">
+      <div class="ticker-label">$ Saved</div>
+      <div class="ticker-value" id="savings">$1.600 B</div>
+    </div>
+  </div>
+
+  <div class="tab-buttons">
     <button class="tab-btn active" onclick="showTab('us', this)">US Map</button>
     <button class="tab-btn" onclick="showTab('world', this)">World Map</button>
     <button class="tab-btn" onclick="showTab('data', this)">Additional Data</button>
-</div>
+  </div>
 
-<div class="tab-content">
+  <div class="tab-content">
     <div id="us" class="tab-pane active">
-        <div id="us-map"></div>
+      <div id="us-map"></div>
     </div>
+
     <div id="world" class="tab-pane">
-        <div id="world-map"></div>
+      <div id="world-map"></div>
     </div>
+
     <div id="data" class="tab-pane">
-        <h2 style="text-align:center">Additional Information</h2>
-        <p style="max-width:800px; margin:0 auto 20px auto; line-height:1.6;">
-            • Data based on public Tesla FSD statistics (March 2026)<br>
-            • ~8.6+ billion cumulative miles driven<br>
-            • ~20 million new miles per day<br>
-            • FSD crash rate ≈ 1 per 5.3 million miles<br>
-            • Human average ≈ 1 per 660,000 miles<br>
-            • Savings equation: (avoided crashes × $56,000) + (lives saved × $13.7M VSL)<br>
-            • Colors: <span style="color:#3fb950">green</span> = lives saved, <span style="color:#58a6ff">blue</span> = accidents avoided, <span style="color:#f85149">red</span> = dollars saved
-        </p>
+      <div class="info-box">
+        <h2 style="text-align:center; margin-top:0;">Additional Information</h2>
+        • Simulated public-facing dashboard concept<br>
+        • Counters update every second for visible live movement<br>
+        • Dark interactive maps powered by Leaflet<br>
+        • This is a demonstration build, not official Tesla data
+      </div>
     </div>
-</div>
+  </div>
 
-<footer>
+  <footer>
     Simulated real-time tracker • Not official Tesla data • For illustration only
-</footer>
+  </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-const START_MILES = 8.62e9;
-const MILES_PER_DAY = 5e6;
-const FSD_CRASH_RATE = 5.3e6;
-const HUMAN_CRASH_RATE = 660e3;
-const FATALITY_RATE_PER_CRASH = 0.006;
-const AVG_ACCIDENT_COST = 56000;
-const VSL = 13700000;
+  <script src="cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    let lives = 69.00;
+    let accidents = 11434.00;
+    let savings = 1.600;
 
-const start = Date.now();
+    const livesEl = document.getElementById("lives");
+    const accidentsEl = document.getElementById("accidents");
+    const savingsEl = document.getElementById("savings");
 
-function updateStats() {
-    const elapsedMs = Date.now() - start;
-    const elapsedDays = elapsedMs / 86400000;
-    const miles = START_MILES + elapsedDays * MILES_PER_DAY;
+    function updateStats() {
+      lives += 0.03;
+      accidents += 4.25;
+      savings += 0.002;
 
-    const expectedCrashes = miles / HUMAN_CRASH_RATE;
-    const actualCrashes = miles / FSD_CRASH_RATE;
-    const avoided = expectedCrashes - actualCrashes;
-    const lives = avoided * FATALITY_RATE_PER_CRASH;
-    const dollars = avoided * AVG_ACCIDENT_COST + lives * VSL;
+      livesEl.textContent = lives.toFixed(2);
+      accidentsEl.textContent = accidents.toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+      savingsEl.textContent = "$" + savings.toFixed(3) + " B";
+    }
 
-    document.getElementById("lives").textContent = Math.round(lives).toLocaleString();
-    document.getElementById("accidents").textContent = Math.round(avoided).toLocaleString();
-    document.getElementById("savings").textContent = (dollars / 1e9).toFixed(1) + " B";
-}
+    setInterval(updateStats, 1000);
+
+    const darkTiles = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
+
+    const usMap = L.map("us-map");
+    const worldMap = L.map("world-map");
+
+    L.tileLayer(darkTiles, {
+      attribution: "© OpenStreetMap & Carto"
+    }).addTo(usMap);
+
+    L.tileLayer(darkTiles, {
+      attribution: "© OpenStreetMap & Carto"
+    }).addTo(worldMap);
+
+    usMap.setView([39.5, -98.35], 4);
+    worldMap.setView([20, 0], 2);
+
+    const usHotspots = [
+      { lat: 34.05, lng: -118.24, radius: 220000, color: "#f85149", popup: "Los Angeles - High activity" },
+      { lat: 29.76, lng: -95.36, radius: 240000, color: "#f85149", popup: "Houston - High activity" },
+      { lat: 25.76, lng: -80.19, radius: 180000, color: "#58a6ff", popup: "Miami - Moderate activity" },
+      { lat: 40.71, lng: -74.00, radius: 160000, color: "#3fb950", popup: "New York - Safer zone" }
+    ];
+
+    const worldHotspots = [
+      { lat: 51.50, lng: -0.12, radius: 180000, color: "#58a6ff", popup: "London - Activity zone" },
+      { lat: 48.85, lng: 2.35, radius: 170000, color: "#58a6ff", popup: "Paris - Activity zone" },
+      { lat: 35.68, lng: 139.69, radius: 220000, color: "#f85149", popup: "Tokyo - High activity" },
+      { lat: -33.87, lng: 151.21, radius: 190000, color: "#3fb950", popup: "Sydney - Safer zone" }
+    ];
+
+    usHotspots.forEach(h => {
+      L.circle([h.lat, h.lng], {
+        color: h.color,
+        fillColor: h.color,
+        fillOpacity: 0.35,
+        radius: h.radius
+      }).addTo(usMap).bindPopup(h.popup);
+    });
+
+    worldHotspots.forEach(h => {
+      L.circle([h.lat, h.lng], {
+        color: h.color,
+        fillColor: h.color,
+        fillOpacity: 0.35,
+        radius: h.radius
+      }).addTo(worldMap).bindPopup(h.popup);
+    });
 
     function showTab(id, button) {
-    document.querySelectorAll(".tab-pane").forEach(pane => pane.classList.remove("active"));
-    document.getElementById(id).classList.add("active");
+      document.querySelectorAll(".tab-pane").forEach(pane => pane.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
 
-    document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
-    if (button) button.classList.add("active");
+      document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+      button.classList.add("active");
 
-    setTimeout(() => {
-    if (window.usMap) {
-        window.usMap.invalidateSize();
-        window.usMap.setView([37.8, -96], 4);
+      setTimeout(() => {
+        if (id === "us") {
+          usMap.invalidateSize();
+          usMap.setView([39.5, -98.35], 4);
+        }
+        if (id === "world") {
+          worldMap.invalidateSize();
+          worldMap.setView([20, 0], 2);
+        }
+      }, 250);
     }
-    if (window.worldMap) {
-        window.worldMap.invalidateSize();
-        window.worldMap.setView([20, 0], 2);
-    }
-}, 1000);
-}
 
-const darkTiles = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
-
-const usMap = L.map("us-map").setView([37.8, -96], 4);
-L.tileLayer(darkTiles, {
-    attribution: "© OpenStreetMap & Carto"
-}).addTo(usMap);
-
-const worldMap = L.map("world-map").setView([20, 0], 2);
-L.tileLayer(darkTiles, {
-    attribution: "© OpenStreetMap & Carto"
-}).addTo(worldMap);
-
-const hotspots = [
-    { lat: 36.1, lng: -119.4, radius: 300000, color: "#f85149", popup: "California - High activity" },
-    { lat: 31.1, lng: -99.9, radius: 350000, color: "#f85149", popup: "Texas - High activity" },
-    { lat: 28.0, lng: -81.8, radius: 250000, color: "#f85149", popup: "Florida - Moderate" },
-    { lat: 40.7, lng: -74.0, radius: 180000, color: "#3fb950", popup: "New York - Safer zone" }
-];
-
-hotspots.forEach(h => {
-    L.circle([h.lat, h.lng], {
-        color: h.color,
-        fillColor: h.color,
-        fillOpacity: 0.4,
-        radius: h.radius
-    }).addTo(usMap).bindPopup(h.popup);
-});
-
-hotspots.forEach(h => {
-    L.circle([h.lat * 0.9 + 20, h.lng * 0.5], {
-        color: h.color,
-        fillColor: h.color,
-        fillOpacity: 0.4,
-        radius: h.radius * 0.6
-    }).addTo(worldMap).bindPopup(h.popup + " (global sim)");
-});
-
-updateStats();
-setInterval(updateStats, 1000);
-
-window.addEventListener("load", () => {
-    setTimeout(() => {
+    window.addEventListener("load", () => {
+      setTimeout(() => {
         usMap.invalidateSize();
-        worldMap.invalidateSize();
-    }, 500);
-});
+        usMap.setView([39.5, -98.35], 4);
+      }, 400);
+    });
 
     window.addEventListener("resize", () => {
-    if (window.usMap) window.usMap.invalidateSize();
-    if (window.worldMap) window.worldMap.invalidateSize();
-});
-
-</script>
-
+      usMap.invalidateSize();
+      worldMap.invalidateSize();
+    });
+  </script>
 </body>
 </html>
