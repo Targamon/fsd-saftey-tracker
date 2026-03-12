@@ -6,64 +6,73 @@
   <title>FSD Safety Monitor</title>
   <style>
     :root{
-      --bg1:#0a1220;
-      --bg2:#07101a;
-      --panel:rgba(18,27,42,.88);
+      --bg1:#08121d;
+      --bg2:#06101a;
+      --panel:rgba(15,23,36,.88);
+      --panel-2:rgba(21,31,48,.92);
       --border:rgba(255,255,255,.08);
-      --text:#e8eef8;
-      --muted:#96a4b6;
-      --blue:#67b7ff;
-      --green:#59e3a2;
-      --orange:#ff9c70;
-      --purple:#d8b4fe;
-      --shadow:0 20px 45px rgba(0,0,0,.28);
+      --text:#e9eef7;
+      --muted:#98a6b8;
+      --blue:#69b7ff;
+      --green:#5be3a6;
+      --orange:#ff9f72;
+      --purple:#d7b7ff;
+      --shadow:0 20px 50px rgba(0,0,0,.28);
       --radius:24px;
     }
 
     *{box-sizing:border-box}
+
     body{
       margin:0;
       font-family:Arial, Helvetica, sans-serif;
       color:var(--text);
       background:
-        radial-gradient(circle at top left, rgba(103,183,255,.12), transparent 28%),
-        radial-gradient(circle at top right, rgba(216,180,254,.10), transparent 24%),
+        radial-gradient(circle at top left, rgba(105,183,255,.12), transparent 28%),
+        radial-gradient(circle at top right, rgba(215,183,255,.10), transparent 25%),
         linear-gradient(180deg,var(--bg1),var(--bg2));
     }
 
     .page{
-      max-width:1240px;
+      max-width:1280px;
       margin:0 auto;
       padding:24px 18px 34px;
     }
 
     .hero{
-      background:linear-gradient(135deg, rgba(19,29,44,.96), rgba(12,18,29,.92));
-      border:1px solid var(--border);
-      border-radius:28px;
-      padding:26px;
-      box-shadow:var(--shadow);
       position:relative;
       overflow:hidden;
+      background:linear-gradient(135deg, rgba(18,28,43,.96), rgba(10,16,26,.94));
+      border:1px solid var(--border);
+      border-radius:30px;
+      padding:28px;
+      box-shadow:var(--shadow);
       margin-bottom:20px;
     }
 
-    .hero:before,.hero:after{
+    .hero::before,
+    .hero::after{
       content:"";
       position:absolute;
       border-radius:50%;
-      filter:blur(40px);
+      filter:blur(42px);
       pointer-events:none;
     }
 
-    .hero:before{
-      width:220px;height:220px;right:-40px;top:-50px;
-      background:rgba(103,183,255,.12);
+    .hero::before{
+      width:220px;
+      height:220px;
+      right:-40px;
+      top:-50px;
+      background:rgba(105,183,255,.13);
     }
 
-    .hero:after{
-      width:200px;height:200px;left:-30px;bottom:-70px;
-      background:rgba(216,180,254,.10);
+    .hero::after{
+      width:200px;
+      height:200px;
+      left:-35px;
+      bottom:-80px;
+      background:rgba(215,183,255,.11);
     }
 
     .eyebrow{
@@ -81,9 +90,9 @@
       position:relative;
       z-index:1;
       margin:0;
-      font-size:clamp(2rem,4vw,3rem);
-      line-height:1.04;
-      letter-spacing:-.04em;
+      font-size:clamp(2.2rem,4vw,3.3rem);
+      line-height:1.02;
+      letter-spacing:-.05em;
     }
 
     .subtitle{
@@ -91,8 +100,9 @@
       z-index:1;
       margin-top:10px;
       color:var(--muted);
-      max-width:760px;
+      max-width:820px;
       line-height:1.55;
+      font-size:1rem;
     }
 
     .stats{
@@ -101,7 +111,7 @@
       display:grid;
       grid-template-columns:repeat(4,minmax(0,1fr));
       gap:16px;
-      margin-top:22px;
+      margin-top:24px;
     }
 
     .stat-card{
@@ -109,17 +119,24 @@
       border:1px solid var(--border);
       border-radius:18px;
       padding:18px;
-      min-height:112px;
+      min-height:108px;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.03);
+      transition:transform .2s ease, border-color .2s ease;
+    }
+
+    .stat-card:hover{
+      transform:translateY(-2px);
+      border-color:rgba(105,183,255,.28);
     }
 
     .stat-label{
       color:var(--muted);
-      font-size:.9rem;
+      font-size:.88rem;
       margin-bottom:12px;
     }
 
     .stat-value{
-      font-size:clamp(1.5rem,2.6vw,2.2rem);
+      font-size:clamp(1.55rem,2.5vw,2.25rem);
       font-weight:800;
       letter-spacing:-.03em;
     }
@@ -145,12 +162,18 @@
       font:inherit;
       font-weight:600;
       cursor:pointer;
+      transition:.2s ease;
+    }
+
+    .tab-btn:hover{
+      transform:translateY(-1px);
+      border-color:rgba(105,183,255,.30);
     }
 
     .tab-btn.active{
-      background:rgba(103,183,255,.12);
+      background:rgba(105,183,255,.12);
       color:var(--blue);
-      border-color:rgba(103,183,255,.50);
+      border-color:rgba(105,183,255,.55);
     }
 
     .pane{display:none}
@@ -167,6 +190,11 @@
     .head{
       padding:16px 18px;
       border-bottom:1px solid var(--border);
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      flex-wrap:wrap;
     }
 
     .title{
@@ -183,54 +211,72 @@
     .map-wrap{
       position:relative;
       width:100%;
-      height:520px;
+      height:560px;
+      background:#0a1320;
       overflow:hidden;
-      background:
-        radial-gradient(circle at 50% 40%, rgba(103,183,255,.08), transparent 40%),
-        linear-gradient(180deg,#0b1522,#0a1220);
     }
 
-    .grid{
-      position:absolute;
-      inset:0;
-      background-image:
-        linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
-      background-size:40px 40px;
-      opacity:.35;
-    }
-
-    .map-svg{
+    .real-map{
       position:absolute;
       inset:0;
       width:100%;
       height:100%;
+      border:0;
+      filter:contrast(1.05) saturate(.9) brightness(.72) hue-rotate(185deg);
     }
 
-    .land{
-      fill:#162335;
-      stroke:rgba(255,255,255,.08);
-      stroke-width:1.2;
+    .map-glow{
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(circle at 20% 28%, rgba(105,183,255,.10), transparent 18%),
+        radial-gradient(circle at 78% 22%, rgba(91,227,166,.10), transparent 18%),
+        linear-gradient(180deg, rgba(6,10,18,.14), rgba(6,10,18,.36));
+      pointer-events:none;
     }
 
-    .route{
-      fill:none;
-      stroke:rgba(103,183,255,.20);
-      stroke-width:2;
-      stroke-dasharray:8 8;
+    .overlay{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
     }
 
     .zone{
-      opacity:.28;
+      position:absolute;
+      border-radius:999px;
+      transform:translate(-50%,-50%);
+      opacity:.33;
+      filter:blur(.2px);
+      box-shadow:0 0 24px currentColor;
     }
 
     .dot{
       position:absolute;
-      width:10px;
-      height:10px;
       border-radius:50%;
-      box-shadow:0 0 16px currentColor;
       transform:translate(-50%,-50%);
+      box-shadow:0 0 14px currentColor, 0 0 28px currentColor;
+    }
+
+    .scan{
+      position:absolute;
+      inset:0;
+      background:linear-gradient(
+        180deg,
+        transparent 0%,
+        rgba(255,255,255,.03) 48%,
+        rgba(255,255,255,.06) 50%,
+        rgba(255,255,255,.03) 52%,
+        transparent 100%
+      );
+      mix-blend-mode:screen;
+      opacity:.35;
+      animation:scanMove 5s linear infinite;
+      pointer-events:none;
+    }
+
+    @keyframes scanMove{
+      from{transform:translateY(-100%)}
+      to{transform:translateY(100%)}
     }
 
     .legend{
@@ -240,13 +286,14 @@
       display:flex;
       gap:10px;
       flex-wrap:wrap;
-      background:rgba(10,16,26,.72);
+      background:rgba(10,16,26,.76);
       border:1px solid var(--border);
       border-radius:999px;
       padding:8px 12px;
       backdrop-filter:blur(8px);
-      font-size:.85rem;
+      font-size:.84rem;
       color:var(--muted);
+      pointer-events:none;
     }
 
     .legend span{
@@ -263,7 +310,7 @@
     }
 
     .info-body{
-      padding:20px;
+      padding:22px;
       color:var(--muted);
       line-height:1.75;
     }
@@ -297,10 +344,14 @@
 
     @media (max-width:640px){
       .page{padding:16px 12px 24px}
-      .hero{padding:18px;border-radius:20px}
+      .hero{padding:18px;border-radius:22px}
       .stats{grid-template-columns:1fr}
-      .map-wrap{height:420px}
-      .legend{left:12px;right:12px;border-radius:16px}
+      .map-wrap{height:440px}
+      .legend{
+        left:12px;
+        right:12px;
+        border-radius:16px;
+      }
     }
   </style>
 </head>
@@ -310,26 +361,26 @@
       <div class="eyebrow">Live Dashboard</div>
       <h1>FSD Safety Monitor</h1>
       <div class="subtitle">
-        A modern simulation dashboard showing estimated mileage growth, avoided crashes,
-        financial impact, and live vehicle activity.
+        A polished simulation dashboard showing estimated mileage growth, avoided crashes,
+        financial impact, and live activity over real map backgrounds.
       </div>
 
       <div class="stats">
         <div class="stat-card">
           <div class="stat-label">FSD Miles Tracked</div>
-          <div class="stat-value" id="miles">8.620000 B</div>
+          <div class="stat-value" id="miles">8.620 B</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Accidents Avoided</div>
-          <div class="stat-value" id="accidents">11,434.0000</div>
+          <div class="stat-value" id="accidents">11,434.20</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Estimated Savings</div>
-          <div class="stat-value" id="savings">$1.600000 B</div>
+          <div class="stat-value" id="savings">$1.580 B</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Estimated Lives Saved</div>
-          <div class="stat-value" id="lives">69.000000</div>
+          <div class="stat-value" id="lives">68.605</div>
         </div>
       </div>
     </section>
@@ -343,31 +394,40 @@
     <section id="us" class="pane active">
       <div class="shell">
         <div class="head">
-          <div class="title">US Activity Map</div>
-          <div class="sub">Live activity zones with moving vehicle markers</div>
+          <div>
+            <div class="title">US Activity Map</div>
+            <div class="sub">Real OpenStreetMap background with live overlay activity</div>
+          </div>
         </div>
-        <div class="map-wrap" id="us-map">
-          <div class="grid"></div>
-          <svg class="map-svg" viewBox="0 0 1000 520" preserveAspectRatio="none">
-            <path class="land" d="M90,350 L110,290 L150,255 L185,235 L250,225 L325,220 L385,210 L455,210 L500,230 L560,225 L615,235 L665,225 L735,240 L795,260 L865,305 L895,355 L855,395 L790,410 L745,430 L680,430 L620,410 L560,398 L500,405 L430,395 L355,410 L280,398 L210,390 L145,378 Z"></path>
-            <path class="route" d="M160,320 C240,250 380,245 485,285 C585,325 720,325 835,300"></path>
-            <path class="route" d="M200,370 C310,300 410,300 520,340 C625,375 735,365 840,335"></path>
-            <circle class="zone" id="us-zone-1" cx="190" cy="325" r="48" fill="#ff9b6e"></circle>
-            <circle class="zone" id="us-zone-2" cx="250" cy="265" r="42" fill="#67b7ff"></circle>
-            <circle class="zone" id="us-zone-3" cx="470" cy="350" r="46" fill="#ff9b6e"></circle>
-            <circle class="zone" id="us-zone-4" cx="780" cy="285" r="34" fill="#59e3a2"></circle>
-          </svg>
+        <div class="map-wrap">
+          <iframe
+            class="real-map"
+            loading="lazy"
+            src="www.openstreetmap.org/export/embed.html?bbox=-127.7%2C24.4%2C-66.5%2C49.6&amp;layer=mapnik"
+            title="US activity map">
+          </iframe>
 
-          <div class="dot" id="us-dot-1" style="left:19%; top:63%; color:#67b7ff;"></div>
-          <div class="dot" id="us-dot-2" style="left:28%; top:53%; color:#59e3a2;"></div>
-          <div class="dot" id="us-dot-3" style="left:48%; top:67%; color:#ff9b6e;"></div>
-          <div class="dot" id="us-dot-4" style="left:62%; top:58%; color:#67b7ff;"></div>
-          <div class="dot" id="us-dot-5" style="left:79%; top:55%; color:#d8b4fe;"></div>
+          <div class="map-glow"></div>
+
+          <div class="overlay" id="us-overlay">
+            <div class="zone" id="us-zone-1" style="left:18%; top:63%; width:105px; height:105px; color:#ff9f72; background:#ff9f72;"></div>
+            <div class="zone" id="us-zone-2" style="left:27%; top:54%; width:88px; height:88px; color:#69b7ff; background:#69b7ff;"></div>
+            <div class="zone" id="us-zone-3" style="left:49%; top:68%; width:98px; height:98px; color:#ff9f72; background:#ff9f72;"></div>
+            <div class="zone" id="us-zone-4" style="left:80%; top:56%; width:78px; height:78px; color:#5be3a6; background:#5be3a6;"></div>
+
+            <div class="dot" id="us-dot-1" style="left:18%; top:63%; width:10px; height:10px; color:#69b7ff; background:#69b7ff;"></div>
+            <div class="dot" id="us-dot-2" style="left:27%; top:54%; width:10px; height:10px; color:#5be3a6; background:#5be3a6;"></div>
+            <div class="dot" id="us-dot-3" style="left:49%; top:68%; width:10px; height:10px; color:#ff9f72; background:#ff9f72;"></div>
+            <div class="dot" id="us-dot-4" style="left:63%; top:58%; width:10px; height:10px; color:#69b7ff; background:#69b7ff;"></div>
+            <div class="dot" id="us-dot-5" style="left:80%; top:56%; width:10px; height:10px; color:#d7b7ff; background:#d7b7ff;"></div>
+          </div>
+
+          <div class="scan"></div>
 
           <div class="legend">
-            <span><i style="background:#ff9b6e"></i>High activity</span>
-            <span><i style="background:#67b7ff"></i>Growth zone</span>
-            <span><i style="background:#59e3a2"></i>Safer zone</span>
+            <span><i style="background:#ff9f72"></i>High activity</span>
+            <span><i style="background:#69b7ff"></i>Growth zone</span>
+            <span><i style="background:#5be3a6"></i>Safer zone</span>
           </div>
         </div>
       </div>
@@ -376,33 +436,39 @@
     <section id="world" class="pane">
       <div class="shell">
         <div class="head">
-          <div class="title">Global Activity Map</div>
-          <div class="sub">Regional FSD growth zones across major markets</div>
+          <div>
+            <div class="title">Global Activity Map</div>
+            <div class="sub">Real OpenStreetMap background with regional growth zones</div>
+          </div>
         </div>
-        <div class="map-wrap" id="world-map">
-          <div class="grid"></div>
-          <svg class="map-svg" viewBox="0 0 1000 520" preserveAspectRatio="none">
-            <path class="land" d="M90,180 L180,150 L250,165 L290,210 L260,255 L190,250 L130,230 Z"></path>
-            <path class="land" d="M260,150 L360,130 L460,150 L495,205 L445,245 L355,245 L290,215 Z"></path>
-            <path class="land" d="M420,250 L505,235 L580,250 L615,295 L585,345 L505,350 L450,320 Z"></path>
-            <path class="land" d="M635,160 L780,145 L875,190 L865,270 L770,290 L670,255 L620,205 Z"></path>
-            <path class="land" d="M770,340 L825,330 L885,365 L860,415 L800,420 L755,385 Z"></path>
+        <div class="map-wrap">
+          <iframe
+            class="real-map"
+            loading="lazy"
+            src="www.openstreetmap.org/export/embed.html?bbox=-180%2C-58%2C180%2C83&amp;layer=mapnik"
+            title="Global activity map">
+          </iframe>
 
-            <circle class="zone" id="world-zone-1" cx="510" cy="165" r="34" fill="#67b7ff"></circle>
-            <circle class="zone" id="world-zone-2" cx="540" cy="175" r="32" fill="#67b7ff"></circle>
-            <circle class="zone" id="world-zone-3" cx="790" cy="230" r="46" fill="#ff9b6e"></circle>
-            <circle class="zone" id="world-zone-4" cx="830" cy="385" r="36" fill="#59e3a2"></circle>
-          </svg>
+          <div class="map-glow"></div>
 
-          <div class="dot" id="world-dot-1" style="left:51%; top:32%; color:#67b7ff;"></div>
-          <div class="dot" id="world-dot-2" style="left:54%; top:34%; color:#67b7ff;"></div>
-          <div class="dot" id="world-dot-3" style="left:79%; top:44%; color:#ff9b6e;"></div>
-          <div class="dot" id="world-dot-4" style="left:83%; top:74%; color:#59e3a2;"></div>
+          <div class="overlay" id="world-overlay">
+            <div class="zone" id="world-zone-1" style="left:51%; top:31%; width:76px; height:76px; color:#69b7ff; background:#69b7ff;"></div>
+            <div class="zone" id="world-zone-2" style="left:54%; top:33%; width:72px; height:72px; color:#69b7ff; background:#69b7ff;"></div>
+            <div class="zone" id="world-zone-3" style="left:80%; top:43%; width:96px; height:96px; color:#ff9f72; background:#ff9f72;"></div>
+            <div class="zone" id="world-zone-4" style="left:84%; top:75%; width:74px; height:74px; color:#5be3a6; background:#5be3a6;"></div>
+
+            <div class="dot" id="world-dot-1" style="left:51%; top:31%; width:10px; height:10px; color:#69b7ff; background:#69b7ff;"></div>
+            <div class="dot" id="world-dot-2" style="left:54%; top:33%; width:10px; height:10px; color:#69b7ff; background:#69b7ff;"></div>
+            <div class="dot" id="world-dot-3" style="left:80%; top:43%; width:10px; height:10px; color:#ff9f72; background:#ff9f72;"></div>
+            <div class="dot" id="world-dot-4" style="left:84%; top:75%; width:10px; height:10px; color:#5be3a6; background:#5be3a6;"></div>
+          </div>
+
+          <div class="scan"></div>
 
           <div class="legend">
-            <span><i style="background:#ff9b6e"></i>High activity</span>
-            <span><i style="background:#67b7ff"></i>Growth zone</span>
-            <span><i style="background:#59e3a2"></i>Safer zone</span>
+            <span><i style="background:#ff9f72"></i>High activity</span>
+            <span><i style="background:#69b7ff"></i>Growth zone</span>
+            <span><i style="background:#5be3a6"></i>Safer zone</span>
           </div>
         </div>
       </div>
@@ -411,17 +477,18 @@
     <section id="info" class="pane">
       <div class="shell">
         <div class="head">
-          <div class="title">How the updates work</div>
-          <div class="sub">Time-based simulation with animated map activity</div>
+          <div>
+            <div class="title">How the updates work</div>
+            <div class="sub">Time-based simulation with real map backgrounds</div>
+          </div>
         </div>
         <div class="info-body">
-          This dashboard updates every second from a starting mileage total and a fixed daily growth rate.
-          Crash avoidance, savings, and life impact are recalculated continuously. The activity maps pulse and the dots move over time to simulate ongoing operations without relying on external map libraries.
+          This version uses real OpenStreetMap embeds for the map backgrounds, then layers animated activity zones and moving vehicle dots on top. The counters update every second from a starting mileage total and a fixed daily growth assumption.
 
           <div class="pill-row">
+            <div class="pill">Real maps</div>
             <div class="pill">Live counters</div>
-            <div class="pill">Animated zones</div>
-            <div class="pill">Moving vehicle dots</div>
+            <div class="pill">Animated overlays</div>
             <div class="pill">GitHub-safe</div>
           </div>
         </div>
@@ -459,49 +526,56 @@
       const lives = avoided * FATALITY_RATE_PER_CRASH;
       const savings = (avoided * AVG_ACCIDENT_COST) + (lives * VSL);
 
-      milesEl.textContent = (miles / 1e9).toFixed(6) + " B";
+      milesEl.textContent = (miles / 1e9).toFixed(3) + " B";
       accidentsEl.textContent = avoided.toLocaleString(undefined, {
-        minimumFractionDigits: 4,
-        maximumFractionDigits: 4
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
       });
-      savingsEl.textContent = "$" + (savings / 1e9).toFixed(6) + " B";
-      livesEl.textContent = lives.toFixed(6);
+      savingsEl.textContent = "$" + (savings / 1e9).toFixed(3) + " B";
+      livesEl.textContent = lives.toFixed(3);
     }
 
     function showTab(id, button) {
       document.querySelectorAll(".pane").forEach(pane => pane.classList.remove("active"));
       document.getElementById(id).classList.add("active");
+
       document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
       button.classList.add("active");
     }
 
     const usDots = [
-      { el: document.getElementById("us-dot-1"), x: 19, y: 63, dx: 1.8, dy: 1.4 },
-      { el: document.getElementById("us-dot-2"), x: 28, y: 53, dx: 1.4, dy: -1.1 },
-      { el: document.getElementById("us-dot-3"), x: 48, y: 67, dx: -1.6, dy: 1.2 },
-      { el: document.getElementById("us-dot-4"), x: 62, y: 58, dx: 1.2, dy: .9 },
-      { el: document.getElementById("us-dot-5"), x: 79, y: 55, dx: -1.0, dy: 1.3 }
+      { el: document.getElementById("us-dot-1"), x: 18, y: 63, dx: 1.6, dy: 1.2 },
+      { el: document.getElementById("us-dot-2"), x: 27, y: 54, dx: 1.2, dy: -1.0 },
+      { el: document.getElementById("us-dot-3"), x: 49, y: 68, dx: -1.4, dy: 1.0 },
+      { el: document.getElementById("us-dot-4"), x: 63, y: 58, dx: 1.0, dy: 0.8 },
+      { el: document.getElementById("us-dot-5"), x: 80, y: 56, dx: -0.9, dy: 1.1 }
     ];
 
     const worldDots = [
-      { el: document.getElementById("world-dot-1"), x: 51, y: 32, dx: 1.1, dy: .8 },
-      { el: document.getElementById("world-dot-2"), x: 54, y: 34, dx: .9, dy: -1.0 },
-      { el: document.getElementById("world-dot-3"), x: 79, y: 44, dx: 1.5, dy: .9 },
-      { el: document.getElementById("world-dot-4"), x: 83, y: 74, dx: -1.0, dy: .8 }
+      { el: document.getElementById("world-dot-1"), x: 51, y: 31, dx: 0.9, dy: 0.8 },
+      { el: document.getElementById("world-dot-2"), x: 54, y: 33, dx: 0.8, dy: -0.8 },
+      { el: document.getElementById("world-dot-3"), x: 80, y: 43, dx: 1.2, dy: 0.8 },
+      { el: document.getElementById("world-dot-4"), x: 84, y: 75, dx: -0.8, dy: 0.7 }
     ];
 
-    const zoneIds = [
-      "us-zone-1","us-zone-2","us-zone-3","us-zone-4",
-      "world-zone-1","world-zone-2","world-zone-3","world-zone-4"
-    ].map(id => document.getElementById(id));
+    const zoneEls = [
+      document.getElementById("us-zone-1"),
+      document.getElementById("us-zone-2"),
+      document.getElementById("us-zone-3"),
+      document.getElementById("us-zone-4"),
+      document.getElementById("world-zone-1"),
+      document.getElementById("world-zone-2"),
+      document.getElementById("world-zone-3"),
+      document.getElementById("world-zone-4")
+    ];
 
-    function animateScene() {
+    function animateOverlay() {
       const t = Date.now() / 1000;
 
       usDots.forEach((dot, i) => {
         const x = dot.x + Math.cos(t + i) * dot.dx;
         const y = dot.y + Math.sin(t + i) * dot.dy;
-        const size = 8 + Math.abs(Math.sin(t * 2 + i)) * 6;
+        const size = 8 + Math.abs(Math.sin(t * 2 + i)) * 5;
         dot.el.style.left = x + "%";
         dot.el.style.top = y + "%";
         dot.el.style.width = size + "px";
@@ -509,8 +583,8 @@
       });
 
       worldDots.forEach((dot, i) => {
-        const x = dot.x + Math.cos(t * .8 + i) * dot.dx;
-        const y = dot.y + Math.sin(t * .8 + i) * dot.dy;
+        const x = dot.x + Math.cos(t * .9 + i) * dot.dx;
+        const y = dot.y + Math.sin(t * .9 + i) * dot.dy;
         const size = 8 + Math.abs(Math.sin(t * 1.8 + i)) * 5;
         dot.el.style.left = x + "%";
         dot.el.style.top = y + "%";
@@ -518,18 +592,17 @@
         dot.el.style.height = size + "px";
       });
 
-      zoneIds.forEach((zone, i) => {
+      zoneEls.forEach((zone, i) => {
         const scale = 1 + Math.sin(t * 1.5 + i) * 0.08;
-        zone.style.transformOrigin = "center";
-        zone.style.transform = "scale(" + scale + ")";
+        zone.style.transform = "translate(-50%,-50%) scale(" + scale + ")";
       });
     }
 
     updateStats();
-    animateScene();
+    animateOverlay();
 
     setInterval(updateStats, 1000);
-    setInterval(animateScene, 120);
+    setInterval(animateOverlay, 120);
   </script>
 </body>
 </html>
