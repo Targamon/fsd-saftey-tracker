@@ -12,18 +12,18 @@
 
   <style>
     :root {
-      --bg-1: #08111b;
-      --bg-2: #0c1724;
-      --panel: rgba(15, 23, 36, 0.88);
+      --bg-top: #0b1420;
+      --bg-bottom: #07111b;
+      --panel: rgba(16, 24, 38, 0.88);
       --panel-border: rgba(255,255,255,0.08);
       --text: #e7eef8;
-      --muted: #95a3b5;
+      --muted: #98a6b7;
       --blue: #63b3ff;
       --green: #56e39f;
-      --orange: #ff9a6c;
-      --purple: #d4a5ff;
+      --orange: #ff9b6e;
+      --purple: #d8b4fe;
       --shadow: 0 20px 45px rgba(0,0,0,0.28);
-      --radius: 22px;
+      --radius: 24px;
     }
 
     * {
@@ -35,9 +35,9 @@
       font-family: "Inter", sans-serif;
       color: var(--text);
       background:
-        radial-gradient(circle at top left, rgba(99,179,255,0.14), transparent 26%),
-        radial-gradient(circle at top right, rgba(212,165,255,0.12), transparent 24%),
-        linear-gradient(180deg, var(--bg-2) 0%, var(--bg-1) 100%);
+        radial-gradient(circle at top left, rgba(99,179,255,0.12), transparent 28%),
+        radial-gradient(circle at top right, rgba(216,180,254,0.10), transparent 22%),
+        linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
     }
 
     .page {
@@ -47,24 +47,23 @@
     }
 
     .hero {
-      background: linear-gradient(135deg, rgba(18,28,43,0.95), rgba(11,17,28,0.90));
+      background: linear-gradient(135deg, rgba(19,29,44,0.96), rgba(12,18,29,0.92));
       border: 1px solid var(--panel-border);
       border-radius: 28px;
       padding: 26px;
       box-shadow: var(--shadow);
-      backdrop-filter: blur(12px);
-      margin-bottom: 20px;
       position: relative;
       overflow: hidden;
+      margin-bottom: 20px;
     }
 
     .hero::before {
       content: "";
       position: absolute;
-      top: -60px;
-      right: -40px;
       width: 220px;
       height: 220px;
+      right: -40px;
+      top: -50px;
       border-radius: 50%;
       background: rgba(99,179,255,0.12);
       filter: blur(40px);
@@ -74,12 +73,12 @@
     .hero::after {
       content: "";
       position: absolute;
-      left: -50px;
-      bottom: -80px;
-      width: 220px;
-      height: 220px;
+      width: 200px;
+      height: 200px;
+      left: -30px;
+      bottom: -70px;
       border-radius: 50%;
-      background: rgba(212,165,255,0.10);
+      background: rgba(216,180,254,0.10);
       filter: blur(40px);
       pointer-events: none;
     }
@@ -143,7 +142,7 @@
     }
 
     .stat-value {
-      font-size: clamp(1.55rem, 2.6vw, 2.2rem);
+      font-size: clamp(1.5rem, 2.6vw, 2.2rem);
       font-weight: 800;
       letter-spacing: -0.03em;
     }
@@ -204,11 +203,6 @@
     .info-head {
       padding: 16px 18px;
       border-bottom: 1px solid var(--panel-border);
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 12px;
-      flex-wrap: wrap;
     }
 
     .map-title,
@@ -326,10 +320,8 @@
     <section id="us" class="pane active">
       <div class="map-shell">
         <div class="map-head">
-          <div>
-            <div class="map-title">US Activity Map</div>
-            <div class="map-subtitle">Live activity zones with moving vehicle markers</div>
-          </div>
+          <div class="map-title">US Activity Map</div>
+          <div class="map-subtitle">Live activity zones with moving vehicle markers</div>
         </div>
         <div id="us-map"></div>
       </div>
@@ -338,10 +330,8 @@
     <section id="world" class="pane">
       <div class="map-shell">
         <div class="map-head">
-          <div>
-            <div class="map-title">Global Activity Map</div>
-            <div class="map-subtitle">Regional FSD growth zones across major markets</div>
-          </div>
+          <div class="map-title">Global Activity Map</div>
+          <div class="map-subtitle">Regional FSD growth zones across major markets</div>
         </div>
         <div id="world-map"></div>
       </div>
@@ -350,10 +340,8 @@
     <section id="info" class="pane">
       <div class="info-shell">
         <div class="info-head">
-          <div>
-            <div class="info-title">How the updates work</div>
-            <div class="info-subtitle">Time-based simulation with animated maps</div>
-          </div>
+          <div class="info-title">How the updates work</div>
+          <div class="info-subtitle">Time-based simulation with animated maps</div>
         </div>
         <div class="info-body">
           This dashboard updates every second from a starting mileage total and a fixed daily growth rate.
@@ -427,16 +415,16 @@
     worldMap.setView([20, 10], 2);
 
     const usZones = [
-      { lat: 34.05, lng: -118.24, baseRadius: 220000, color: "#ff9a6c", popup: "Los Angeles • High activity" },
+      { lat: 34.05, lng: -118.24, baseRadius: 220000, color: "#ff9b6e", popup: "Los Angeles • High activity" },
       { lat: 37.77, lng: -122.42, baseRadius: 180000, color: "#63b3ff", popup: "San Francisco • Growth zone" },
-      { lat: 29.76, lng: -95.36, baseRadius: 210000, color: "#ff9a6c", popup: "Houston • High activity" },
+      { lat: 29.76, lng: -95.36, baseRadius: 210000, color: "#ff9b6e", popup: "Houston • High activity" },
       { lat: 40.71, lng: -74.00, baseRadius: 140000, color: "#56e39f", popup: "New York • Safer zone" }
     ];
 
     const worldZones = [
       { lat: 51.50, lng: -0.12, baseRadius: 160000, color: "#63b3ff", popup: "London • Growth zone" },
       { lat: 48.85, lng: 2.35, baseRadius: 160000, color: "#63b3ff", popup: "Paris • Growth zone" },
-      { lat: 35.68, lng: 139.69, baseRadius: 210000, color: "#ff9a6c", popup: "Tokyo • High activity" },
+      { lat: 35.68, lng: 139.69, baseRadius: 210000, color: "#ff9b6e", popup: "Tokyo • High activity" },
       { lat: -33.87, lng: 151.21, baseRadius: 170000, color: "#56e39f", popup: "Sydney • Safer zone" }
     ];
 
@@ -463,9 +451,9 @@
     const movingDots = [
       { lat: 34.05, lng: -118.24, color: "#63b3ff", dx: 0.03, dy: 0.02 },
       { lat: 36.17, lng: -115.14, color: "#56e39f", dx: 0.02, dy: -0.01 },
-      { lat: 32.78, lng: -96.80, color: "#ff9a6c", dx: -0.02, dy: 0.015 },
+      { lat: 32.78, lng: -96.80, color: "#ff9b6e", dx: -0.02, dy: 0.015 },
       { lat: 41.88, lng: -87.63, color: "#63b3ff", dx: 0.015, dy: 0.01 },
-      { lat: 40.71, lng: -74.00, color: "#d4a5ff", dx: -0.01, dy: 0.02 }
+      { lat: 40.71, lng: -74.00, color: "#d8b4fe", dx: -0.01, dy: 0.02 }
     ];
 
     const usVehicles = movingDots.map(dot =>
