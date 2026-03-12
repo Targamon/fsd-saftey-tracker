@@ -1,346 +1,828 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FSD Telemetry Monitor</title>
+  <style>
+    :root{
+      --bg-1:#060b12;
+      --bg-2:#0a1320;
+      --panel:#0f1826;
+      --panel-2:#131f31;
+      --border:rgba(255,255,255,.08);
+      --text:#edf3fb;
+      --muted:#93a3b8;
+      --blue:#67b7ff;
+      --green:#57e3a3;
+      --orange:#ff9f73;
+      --purple:#d7b7ff;
+      --red:#ff6f7d;
+      --shadow:0 24px 60px rgba(0,0,0,.35);
+      --radius:24px;
+    }
 
-<title>FSD Safety Monitor</title>
-<link rel="stylesheet" href="unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    *{box-sizing:border-box}
 
-<style>
+    html,body{
+      margin:0;
+      min-height:100%;
+      font-family:Arial, Helvetica, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(103,183,255,.10), transparent 25%),
+        radial-gradient(circle at top right, rgba(215,183,255,.08), transparent 22%),
+        linear-gradient(180deg,var(--bg-2),var(--bg-1));
+    }
 
-body{
-margin:0;
-font-family:Arial, Helvetica, sans-serif;
-background:#0b1420;
-color:#e9eef7;
-}
+    .page{
+      max-width:1320px;
+      margin:0 auto;
+      padding:22px 16px 28px;
+    }
 
-.page{
-max-width:1200px;
-margin:auto;
-padding:25px;
-}
+    .hero{
+      position:relative;
+      overflow:hidden;
+      background:linear-gradient(135deg, rgba(20,31,48,.96), rgba(10,16,26,.96));
+      border:1px solid var(--border);
+      border-radius:30px;
+      padding:26px;
+      box-shadow:var(--shadow);
+      margin-bottom:18px;
+    }
 
-.hero{
-background:#101b2a;
-padding:25px;
-border-radius:20px;
-margin-bottom:20px;
-}
+    .hero::before,
+    .hero::after{
+      content:"";
+      position:absolute;
+      border-radius:50%;
+      filter:blur(44px);
+      pointer-events:none;
+    }
 
-.hero h1{
-margin:0;
-font-size:32px;
-}
+    .hero::before{
+      width:240px;
+      height:240px;
+      right:-50px;
+      top:-60px;
+      background:rgba(103,183,255,.11);
+    }
 
-.subtitle{
-color:#a7b3c2;
-margin-top:8px;
-}
+    .hero::after{
+      width:220px;
+      height:220px;
+      left:-40px;
+      bottom:-90px;
+      background:rgba(215,183,255,.09);
+    }
 
-.stats{
-display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:15px;
-margin-top:20px;
-}
+    .eyebrow{
+      position:relative;
+      z-index:1;
+      color:var(--blue);
+      font-size:.76rem;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      font-weight:700;
+      margin-bottom:10px;
+    }
 
-.stat{
-background:#162233;
-padding:15px;
-border-radius:14px;
-}
+    h1{
+      position:relative;
+      z-index:1;
+      margin:0;
+      font-size:clamp(2.2rem,4vw,3.6rem);
+      letter-spacing:-.05em;
+      line-height:1.02;
+    }
 
-.stat-label{
-color:#95a3b5;
-font-size:14px;
-}
+    .subtitle{
+      position:relative;
+      z-index:1;
+      margin-top:10px;
+      max-width:820px;
+      color:var(--muted);
+      line-height:1.55;
+      font-size:1rem;
+    }
 
-.stat-value{
-font-size:22px;
-font-weight:bold;
-margin-top:6px;
-}
+    .hero-grid{
+      position:relative;
+      z-index:1;
+      display:grid;
+      grid-template-columns:1.45fr .9fr;
+      gap:18px;
+      margin-top:22px;
+      align-items:stretch;
+    }
 
-#miles{color:#6bc6ff}
-#accidents{color:#6bffa8}
-#savings{color:#ffa96b}
-#lives{color:#d6a9ff}
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:14px;
+    }
 
-.tabs{
-margin:20px 0;
-}
+    .card{
+      background:rgba(255,255,255,.04);
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:16px;
+      min-height:98px;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.03);
+    }
 
-.tab-btn{
-padding:10px 14px;
-margin-right:10px;
-background:#162233;
-border:none;
-border-radius:20px;
-color:white;
-cursor:pointer;
-}
+    .label{
+      color:var(--muted);
+      font-size:.84rem;
+      margin-bottom:10px;
+    }
 
-.tab-btn.active{
-background:#2b4c75;
-}
+    .value{
+      font-weight:700;
+      font-size:clamp(1.35rem,2.2vw,2.05rem);
+      letter-spacing:-.03em;
+    }
 
-.pane{display:none}
-.pane.active{display:block}
+    #miles{color:var(--blue)}
+    #accidents{color:var(--green)}
+    #savings{color:var(--orange)}
+    #lives{color:var(--purple)}
 
-.map-wrap{
-position:relative;
-height:500px;
-border-radius:20px;
-overflow:hidden;
-border:1px solid rgba(255,255,255,.08);
-}
+    .mini-panel{
+      background:rgba(255,255,255,.04);
+      border:1px solid var(--border);
+      border-radius:20px;
+      padding:18px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      min-height:214px;
+    }
 
-.real-map{
-position:absolute;
-width:100%;
-height:100%;
-border:0;
-}
+    .mini-title{
+      font-size:.92rem;
+      color:var(--muted);
+      margin-bottom:10px;
+    }
 
-.overlay{
-position:absolute;
-inset:0;
-pointer-events:none;
-}
+    .status-line{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:10px 0;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      font-size:.92rem;
+    }
 
-.zone{
-position:absolute;
-border-radius:50%;
-opacity:.35;
-transform:translate(-50%,-50%);
-}
+    .status-line:last-child{
+      border-bottom:none;
+      padding-bottom:0;
+    }
 
-.dot{
-position:absolute;
-width:10px;
-height:10px;
-border-radius:50%;
-transform:translate(-50%,-50%);
-}
+    .status-pill{
+      padding:5px 10px;
+      border-radius:999px;
+      font-size:.78rem;
+      font-weight:700;
+    }
 
-.legend{
-position:absolute;
-bottom:15px;
-right:15px;
-background:#0b1420;
-padding:8px 12px;
-border-radius:20px;
-font-size:13px;
-}
+    .ok{background:rgba(87,227,163,.12); color:var(--green)}
+    .warn{background:rgba(255,159,115,.12); color:var(--orange)}
+    .live{background:rgba(103,183,255,.12); color:var(--blue)}
 
-footer{
-text-align:center;
-margin-top:20px;
-color:#95a3b5;
-font-size:12px;
-}
+    .tabs{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin:18px 0 16px;
+    }
 
-</style>
+    .tab-btn{
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.04);
+      color:var(--text);
+      border-radius:999px;
+      padding:11px 16px;
+      font:inherit;
+      font-size:.92rem;
+      font-weight:700;
+      cursor:pointer;
+      transition:.18s ease;
+    }
+
+    .tab-btn:hover{
+      transform:translateY(-1px);
+      border-color:rgba(103,183,255,.26);
+    }
+
+    .tab-btn.active{
+      color:var(--blue);
+      background:rgba(103,183,255,.12);
+      border-color:rgba(103,183,255,.55);
+    }
+
+    .pane{display:none}
+    .pane.active{display:block}
+
+    .layout{
+      display:grid;
+      grid-template-columns:1.45fr .78fr;
+      gap:18px;
+      align-items:start;
+    }
+
+    .shell{
+      background:linear-gradient(180deg, rgba(17,27,41,.95), rgba(12,19,30,.96));
+      border:1px solid var(--border);
+      border-radius:28px;
+      overflow:hidden;
+      box-shadow:var(--shadow);
+    }
+
+    .shell-head{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:flex-start;
+      padding:16px 18px;
+      border-bottom:1px solid var(--border);
+    }
+
+    .shell-title{
+      font-size:1rem;
+      font-weight:700;
+    }
+
+    .shell-sub{
+      color:var(--muted);
+      font-size:.88rem;
+      margin-top:4px;
+    }
+
+    .legend{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:center;
+      color:var(--muted);
+      font-size:.82rem;
+    }
+
+    .legend span{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.05);
+      border-radius:999px;
+      padding:6px 10px;
+    }
+
+    .legend i{
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      display:inline-block;
+    }
+
+    .telemetry{
+      position:relative;
+      width:100%;
+      height:560px;
+      overflow:hidden;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(103,183,255,.08), transparent 38%),
+        linear-gradient(180deg,#0a1522,#09111b);
+    }
+
+    .telemetry::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+      background-size:42px 42px;
+      opacity:.3;
+      pointer-events:none;
+    }
+
+    .telemetry::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:radial-gradient(circle at center, transparent 0%, transparent 62%, rgba(3,6,11,.32) 100%);
+      pointer-events:none;
+    }
+
+    .scan{
+      position:absolute;
+      inset:0;
+      background:linear-gradient(
+        180deg,
+        transparent 0%,
+        rgba(255,255,255,.02) 45%,
+        rgba(103,183,255,.08) 50%,
+        rgba(255,255,255,.02) 55%,
+        transparent 100%
+      );
+      animation:scan 5s linear infinite;
+      pointer-events:none;
+      mix-blend-mode:screen;
+    }
+
+    @keyframes scan{
+      from{transform:translateY(-100%)}
+      to{transform:translateY(100%)}
+    }
+
+    .telemetry svg{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+    }
+
+    .land{
+      fill:#1a2940;
+      stroke:rgba(255,255,255,.09);
+      stroke-width:1.6;
+    }
+
+    .route{
+      fill:none;
+      stroke:rgba(103,183,255,.38);
+      stroke-width:2.3;
+      stroke-dasharray:9 9;
+    }
+
+    .route.alt{
+      stroke:rgba(255,159,115,.28);
+    }
+
+    .route.green{
+      stroke:rgba(87,227,163,.24);
+    }
+
+    .zone{
+      position:absolute;
+      transform:translate(-50%,-50%);
+      border-radius:50%;
+      opacity:.34;
+      box-shadow:0 0 18px currentColor, 0 0 36px currentColor;
+      pointer-events:none;
+    }
+
+    .dot{
+      position:absolute;
+      transform:translate(-50%,-50%);
+      border-radius:50%;
+      box-shadow:0 0 14px currentColor, 0 0 30px currentColor;
+      pointer-events:none;
+    }
+
+    .feed{
+      padding:0;
+      list-style:none;
+      margin:0;
+    }
+
+    .feed li{
+      display:flex;
+      gap:10px;
+      padding:14px 16px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      align-items:flex-start;
+    }
+
+    .feed li:last-child{
+      border-bottom:none;
+    }
+
+    .feed-dot{
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      margin-top:6px;
+      flex:0 0 10px;
+      box-shadow:0 0 14px currentColor;
+    }
+
+    .feed-main{
+      flex:1;
+    }
+
+    .feed-title{
+      font-size:.92rem;
+      color:var(--text);
+      margin-bottom:4px;
+    }
+
+    .feed-sub{
+      font-size:.8rem;
+      color:var(--muted);
+      line-height:1.45;
+    }
+
+    .info-body{
+      padding:20px;
+      color:var(--muted);
+      line-height:1.75;
+    }
+
+    .pill-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:14px;
+    }
+
+    .pill{
+      background:rgba(255,255,255,.04);
+      border:1px solid var(--border);
+      color:var(--text);
+      border-radius:999px;
+      padding:8px 12px;
+      font-size:.88rem;
+    }
+
+    footer{
+      text-align:center;
+      color:var(--muted);
+      font-size:.82rem;
+      padding:18px 0 6px;
+    }
+
+    @media (max-width:1100px){
+      .hero-grid,
+      .layout{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media (max-width:860px){
+      .stats{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+      }
+    }
+
+    @media (max-width:640px){
+      .page{padding:16px 12px 24px}
+      .hero{padding:18px;border-radius:22px}
+      .stats{grid-template-columns:1fr}
+      .telemetry{height:430px}
+    }
+  </style>
 </head>
-
-
 <body>
-
-<div class="page">
-
-<div class="hero">
-
-<h1>FSD Safety Monitor</h1>
-
-<div class="subtitle">
-A simulation dashboard showing estimated mileage growth, avoided crashes,
-financial impact, and live vehicle activity.
-</div>
-
-<div class="stats">
-
-<div class="stat">
-<div class="stat-label">FSD Miles Tracked</div>
-<div class="stat-value" id="miles">8.620 B</div>
-</div>
-
-<div class="stat">
-<div class="stat-label">Accidents Avoided</div>
-<div class="stat-value" id="accidents">11,434.20</div>
-</div>
-
-<div class="stat">
-<div class="stat-label">Estimated Savings</div>
-<div class="stat-value" id="savings">$1.580 B</div>
-</div>
-
-<div class="stat">
-<div class="stat-label">Estimated Lives Saved</div>
-<div class="stat-value" id="lives">68.605</div>
-</div>
-
-</div>
-</div>
-
-<div class="tabs">
-
-<button class="tab-btn active" onclick="showTab('us',this)">US Activity</button>
-<button class="tab-btn" onclick="showTab('world',this)">Global Activity</button>
-<button class="tab-btn" onclick="showTab('info',this)">How It Works</button>
-
-</div>
-
-
-<section id="us" class="pane active">
-
-<div class="map-wrap">
-
-<div id="map" style="height:100%;width:100%"></div>
-
-<div class="overlay">
-
-<div class="zone" id="us-zone1"
-style="left:20%;top:65%;width:110px;height:110px;background:#ff9f72;"></div>
-
-<div class="zone" id="us-zone2"
-style="left:30%;top:55%;width:90px;height:90px;background:#69b7ff;"></div>
-
-<div class="zone" id="us-zone3"
-style="left:50%;top:70%;width:100px;height:100px;background:#ff9f72;"></div>
-
-<div class="zone" id="us-zone4"
-style="left:80%;top:55%;width:80px;height:80px;background:#5be3a6;"></div>
-
-<div class="dot" id="us-dot1"
-style="left:20%;top:65%;background:#69b7ff;"></div>
-
-<div class="dot" id="us-dot2"
-style="left:30%;top:55%;background:#5be3a6;"></div>
-
-<div class="dot" id="us-dot3"
-style="left:50%;top:70%;background:#ff9f72;"></div>
-
-<div class="dot" id="us-dot4"
-style="left:65%;top:60%;background:#69b7ff;"></div>
-
-<div class="dot" id="us-dot5"
-style="left:80%;top:55%;background:#d7b7ff;"></div>
-
-</div>
-
-<div class="legend">
-High activity • Growth zone • Safer zone
-</div>
-
-</div>
-
-</section>
-
-
-<section id="world" class="pane">
-
-<div class="map-wrap">
-
-<iframe class="real-map"
-src="www.openstreetmap.org/#map=2/20/0">
-</iframe>
-
-</div>
-
-</section>
-
-
-<section id="info" class="pane">
-
-<p>
-This dashboard simulates Tesla Full Self-Driving mileage growth and calculates
-estimated accident avoidance, financial savings, and lives saved using
-public roadway statistics.
-</p>
-
-</section>
-
-<footer>
-
-Simulated live dashboard • Not official Tesla data • Built for demonstration
-
-</footer>
-
-</div>
-
-
-
-<script>
-
-const milesEl=document.getElementById("miles")
-const accidentsEl=document.getElementById("accidents")
-const savingsEl=document.getElementById("savings")
-const livesEl=document.getElementById("lives")
-
-const START_TIME=Date.now()
-
-const START_MILES=8.62e9
-const MILES_PER_DAY=20e6
-
-const HUMAN_CRASH_RATE=660000
-const FSD_CRASH_RATE=5300000
-
-const FATALITY_RATE=.006
-const ACCIDENT_COST=56000
-const LIFE_VALUE=13700000
-
-
-function updateStats(){
-
-const elapsed=(Date.now()-START_TIME)/86400000
-
-const miles=START_MILES+(elapsed*MILES_PER_DAY)
-
-const humanCrashes=miles/HUMAN_CRASH_RATE
-const fsdCrashes=miles/FSD_CRASH_RATE
-
-const avoided=humanCrashes-fsdCrashes
-
-const lives=avoided*FATALITY_RATE
-
-const savings=(avoided*ACCIDENT_COST)+(lives*LIFE_VALUE)
-
-milesEl.textContent=(miles/1e9).toFixed(3)+" B"
-
-accidentsEl.textContent=avoided.toLocaleString(undefined,{minimumFractionDigits:2})
-
-savingsEl.textContent="$"+(savings/1e9).toFixed(3)+" B"
-
-livesEl.textContent=lives.toFixed(3)
-
-}
-
-
-function showTab(id,btn){
-
-document.querySelectorAll(".pane").forEach(p=>p.classList.remove("active"))
-
-document.getElementById(id).classList.add("active")
-
-document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"))
-
-btn.classList.add("active")
-
-}
-
-
-setInterval(updateStats,1000)
-
-updateStats()
-const map = L.map('map').setView([39, -98], 4);
-
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19
-}).addTo(map);
-</script>
-
+  <div class="page">
+    <section class="hero">
+      <div class="eyebrow">Tesla-style Telemetry</div>
+      <h1>FSD Telemetry Monitor</h1>
+      <div class="subtitle">
+        A live concept dashboard inspired by AI Day visuals, showing fleet growth, avoided incidents,
+        savings impact, moving telemetry points, and active safety zones.
+      </div>
+
+      <div class="hero-grid">
+        <div class="stats">
+          <div class="card">
+            <div class="label">Fleet Miles Tracked</div>
+            <div class="value" id="miles">8.620 B</div>
+          </div>
+          <div class="card">
+            <div class="label">Incidents Avoided</div>
+            <div class="value" id="accidents">11,434.20</div>
+          </div>
+          <div class="card">
+            <div class="label">Estimated Savings</div>
+            <div class="value" id="savings">$1.580 B</div>
+          </div>
+          <div class="card">
+            <div class="label">Estimated Lives Saved</div>
+            <div class="value" id="lives">68.605</div>
+          </div>
+        </div>
+
+        <div class="mini-panel">
+          <div>
+            <div class="mini-title">System Status</div>
+            <div class="status-line">
+              <span>Fleet telemetry stream</span>
+              <span class="status-pill live">LIVE</span>
+            </div>
+            <div class="status-line">
+              <span>Safety modeling engine</span>
+              <span class="status-pill ok">STABLE</span>
+            </div>
+            <div class="status-line">
+              <span>Urban activity clusters</span>
+              <span class="status-pill warn">ELEVATED</span>
+            </div>
+          </div>
+          <div style="color:var(--muted);font-size:.84rem;line-height:1.5;">
+            Simulation mode active • AI Day style concept layout • Motion rendered directly in browser
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showTab('us', this)">US Telemetry</button>
+      <button class="tab-btn" onclick="showTab('world', this)">Global Telemetry</button>
+      <button class="tab-btn" onclick="showTab('info', this)">How It Works</button>
+    </div>
+
+    <section id="us" class="pane active">
+      <div class="layout">
+        <div class="shell">
+          <div class="shell-head">
+            <div>
+              <div class="shell-title">US Fleet Telemetry View</div>
+              <div class="shell-sub">Moving traffic nodes, live corridors, and pulsing regional safety zones</div>
+            </div>
+            <div class="legend">
+              <span><i style="background:#ff9f73"></i>High activity</span>
+              <span><i style="background:#67b7ff"></i>Growth corridor</span>
+              <span><i style="background:#57e3a3"></i>Safer zone</span>
+            </div>
+          </div>
+
+          <div class="telemetry" id="us-map">
+            <svg viewBox="0 0 1000 560" preserveAspectRatio="none">
+              <path class="land" d="M98,360 L120,302 L165,265 L225,236 L300,220 L385,216 L462,206 L530,212 L600,240 L685,236 L760,256 L834,290 L900,352 L888,408 L830,446 L745,458 L660,438 L576,412 L506,406 L430,418 L340,404 L250,392 L175,380 Z"></path>
+
+              <path class="route" d="M170,320 C285,250 430,250 565,295 C675,333 790,340 900,315"></path>
+              <path class="route alt" d="M190,378 C300,310 440,308 555,348 C680,392 800,390 905,355"></path>
+              <path class="route green" d="M235,270 C350,250 470,260 585,284 C680,304 770,302 840,288"></path>
+            </svg>
+
+            <div class="zone" id="us-zone-1" style="left:17%;top:63%;width:122px;height:122px;color:var(--orange);background:var(--orange);"></div>
+            <div class="zone" id="us-zone-2" style="left:28%;top:54%;width:98px;height:98px;color:var(--blue);background:var(--blue);"></div>
+            <div class="zone" id="us-zone-3" style="left:50%;top:69%;width:108px;height:108px;color:var(--orange);background:var(--orange);"></div>
+            <div class="zone" id="us-zone-4" style="left:79%;top:56%;width:92px;height:92px;color:var(--green);background:var(--green);"></div>
+
+            <div class="dot" id="us-dot-1" style="left:17%;top:63%;width:10px;height:10px;color:var(--blue);background:var(--blue);"></div>
+            <div class="dot" id="us-dot-2" style="left:28%;top:54%;width:10px;height:10px;color:var(--green);background:var(--green);"></div>
+            <div class="dot" id="us-dot-3" style="left:50%;top:69%;width:10px;height:10px;color:var(--orange);background:var(--orange);"></div>
+            <div class="dot" id="us-dot-4" style="left:63%;top:58%;width:10px;height:10px;color:var(--blue);background:var(--blue);"></div>
+            <div class="dot" id="us-dot-5" style="left:79%;top:56%;width:10px;height:10px;color:var(--purple);background:var(--purple);"></div>
+
+            <div class="scan"></div>
+          </div>
+        </div>
+
+        <div class="shell">
+          <div class="shell-head">
+            <div>
+              <div class="shell-title">Live Event Feed</div>
+              <div class="shell-sub">Recent simulated telemetry events</div>
+            </div>
+          </div>
+          <ul class="feed" id="feed"></ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="world" class="pane">
+      <div class="layout">
+        <div class="shell">
+          <div class="shell-head">
+            <div>
+              <div class="shell-title">Global Fleet Telemetry View</div>
+              <div class="shell-sub">International growth zones with active regional motion</div>
+            </div>
+            <div class="legend">
+              <span><i style="background:#ff9f73"></i>High activity</span>
+              <span><i style="background:#67b7ff"></i>Growth zone</span>
+              <span><i style="background:#57e3a3"></i>Safer zone</span>
+            </div>
+          </div>
+
+          <div class="telemetry" id="world-map">
+            <svg viewBox="0 0 1000 560" preserveAspectRatio="none">
+              <path class="land" d="M86,180 L180,142 L244,166 L288,215 L257,262 L177,257 L118,230 Z"></path>
+              <path class="land" d="M264,146 L374,128 L472,150 L516,210 L460,250 L356,250 L292,212 Z"></path>
+              <path class="land" d="M438,258 L514,240 L596,252 L625,298 L590,348 L512,352 L458,320 Z"></path>
+              <path class="land" d="M628,168 L780,146 L886,198 L872,276 L774,292 L671,258 L620,208 Z"></path>
+              <path class="land" d="M774,350 L834,340 L892,374 L864,424 L800,430 L756,390 Z"></path>
+
+              <path class="route" d="M500,164 C560,158 635,170 728,205 C790,228 830,246 858,260"></path>
+              <path class="route alt" d="M110,192 C175,178 245,176 320,190 C406,206 470,216 520,230"></path>
+              <path class="route green" d="M760,356 C786,356 812,364 846,388"></path>
+            </svg>
+
+            <div class="zone" id="world-zone-1" style="left:51%;top:31%;width:84px;height:84px;color:var(--blue);background:var(--blue);"></div>
+            <div class="zone" id="world-zone-2" style="left:54%;top:33%;width:78px;height:78px;color:var(--blue);background:var(--blue);"></div>
+            <div class="zone" id="world-zone-3" style="left:80%;top:44%;width:112px;height:112px;color:var(--orange);background:var(--orange);"></div>
+            <div class="zone" id="world-zone-4" style="left:84%;top:74%;width:88px;height:88px;color:var(--green);background:var(--green);"></div>
+
+            <div class="dot" id="world-dot-1" style="left:51%;top:31%;width:10px;height:10px;color:var(--blue);background:var(--blue);"></div>
+            <div class="dot" id="world-dot-2" style="left:54%;top:33%;width:10px;height:10px;color:var(--blue);background:var(--blue);"></div>
+            <div class="dot" id="world-dot-3" style="left:80%;top:44%;width:10px;height:10px;color:var(--orange);background:var(--orange);"></div>
+            <div class="dot" id="world-dot-4" style="left:84%;top:74%;width:10px;height:10px;color:var(--green);background:var(--green);"></div>
+
+            <div class="scan"></div>
+          </div>
+        </div>
+
+        <div class="shell">
+          <div class="shell-head">
+            <div>
+              <div class="shell-title">Regional Summary</div>
+              <div class="shell-sub">Live strategic zones</div>
+            </div>
+          </div>
+          <ul class="feed">
+            <li>
+              <div class="feed-dot" style="background:var(--blue); color:var(--blue);"></div>
+              <div class="feed-main">
+                <div class="feed-title">Europe corridor stability high</div>
+                <div class="feed-sub">Dense telemetry clusters remain synchronized across London and Paris lanes.</div>
+              </div>
+            </li>
+            <li>
+              <div class="feed-dot" style="background:var(--orange); color:var(--orange);"></div>
+              <div class="feed-main">
+                <div class="feed-title">Tokyo activity volume elevated</div>
+                <div class="feed-sub">High-flow zone continues pulsing with above-baseline traffic density.</div>
+              </div>
+            </li>
+            <li>
+              <div class="feed-dot" style="background:var(--green); color:var(--green);"></div>
+              <div class="feed-main">
+                <div class="feed-title">Sydney safety efficiency strong</div>
+                <div class="feed-sub">Safer-zone modeling holds steady across coastal telemetry segments.</div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="info" class="pane">
+      <div class="shell">
+        <div class="shell-head">
+          <div>
+            <div class="shell-title">How this concept works</div>
+            <div class="shell-sub">AI Day inspired, browser-rendered telemetry simulation</div>
+          </div>
+        </div>
+        <div class="info-body">
+          This version is designed to feel like a keynote telemetry dashboard rather than a traditional map widget.
+          It uses continuously updating counters, pulsing regional activity zones, moving telemetry dots, corridor lines,
+          and a live event feed. Everything is drawn directly in the page so it stays reliable on GitHub Pages.
+
+          <div class="pill-row">
+            <div class="pill">AI Day style</div>
+            <div class="pill">Live counters</div>
+            <div class="pill">Motion on both tabs</div>
+            <div class="pill">No iframe issues</div>
+            <div class="pill">GitHub-safe</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      Simulated telemetry dashboard • Not official Tesla data • Built for demonstration
+    </footer>
+  </div>
+
+  <script>
+    const milesEl = document.getElementById("miles");
+    const accidentsEl = document.getElementById("accidents");
+    const savingsEl = document.getElementById("savings");
+    const livesEl = document.getElementById("lives");
+    const feedEl = document.getElementById("feed");
+
+    const START_TIME = Date.now();
+    const START_MILES = 8.62e9;
+    const MILES_PER_DAY = 20e6;
+    const HUMAN_CRASH_RATE = 660000;
+    const FSD_CRASH_RATE = 5300000;
+    const FATALITY_RATE = 0.006;
+    const ACCIDENT_COST = 56000;
+    const LIFE_VALUE = 13700000;
+
+    function updateStats(){
+      const elapsedDays = (Date.now() - START_TIME) / 86400000;
+      const miles = START_MILES + (elapsedDays * MILES_PER_DAY);
+      const humanCrashes = miles / HUMAN_CRASH_RATE;
+      const fsdCrashes = miles / FSD_CRASH_RATE;
+      const avoided = humanCrashes - fsdCrashes;
+      const lives = avoided * FATALITY_RATE;
+      const savings = (avoided * ACCIDENT_COST) + (lives * LIFE_VALUE);
+
+      milesEl.textContent = (miles / 1e9).toFixed(3) + " B";
+      accidentsEl.textContent = avoided.toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+      savingsEl.textContent = "$" + (savings / 1e9).toFixed(3) + " B";
+      livesEl.textContent = lives.toFixed(3);
+    }
+
+    function showTab(id, btn){
+      document.querySelectorAll(".pane").forEach(p => p.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+    }
+
+    const usDots = [
+      { el: document.getElementById("us-dot-1"), x:17, y:63, dx:1.8, dy:1.2 },
+      { el: document.getElementById("us-dot-2"), x:28, y:54, dx:1.4, dy:-1.0 },
+      { el: document.getElementById("us-dot-3"), x:50, y:69, dx:-1.5, dy:1.0 },
+      { el: document.getElementById("us-dot-4"), x:63, y:58, dx:1.0, dy:.8 },
+      { el: document.getElementById("us-dot-5"), x:79, y:56, dx:-.9, dy:1.1 }
+    ];
+
+    const worldDots = [
+      { el: document.getElementById("world-dot-1"), x:51, y:31, dx:1.0, dy:.7 },
+      { el: document.getElementById("world-dot-2"), x:54, y:33, dx:.8, dy:-.8 },
+      { el: document.getElementById("world-dot-3"), x:80, y:44, dx:1.2, dy:.8 },
+      { el: document.getElementById("world-dot-4"), x:84, y:74, dx:-.8, dy:.7 }
+    ];
+
+    const zones = [
+      document.getElementById("us-zone-1"),
+      document.getElementById("us-zone-2"),
+      document.getElementById("us-zone-3"),
+      document.getElementById("us-zone-4"),
+      document.getElementById("world-zone-1"),
+      document.getElementById("world-zone-2"),
+      document.getElementById("world-zone-3"),
+      document.getElementById("world-zone-4")
+    ];
+
+    function animateTelemetry(){
+      const t = Date.now() / 1000;
+
+      usDots.forEach((dot, i) => {
+        const x = dot.x + Math.cos(t + i) * dot.dx;
+        const y = dot.y + Math.sin(t + i) * dot.dy;
+        const size = 8 + Math.abs(Math.sin(t * 2 + i)) * 5;
+        dot.el.style.left = x + "%";
+        dot.el.style.top = y + "%";
+        dot.el.style.width = size + "px";
+        dot.el.style.height = size + "px";
+      });
+
+      worldDots.forEach((dot, i) => {
+        const x = dot.x + Math.cos(t * .8 + i) * dot.dx;
+        const y = dot.y + Math.sin(t * .8 + i) * dot.dy;
+        const size = 8 + Math.abs(Math.sin(t * 1.8 + i)) * 5;
+        dot.el.style.left = x + "%";
+        dot.el.style.top = y + "%";
+        dot.el.style.width = size + "px";
+        dot.el.style.height = size + "px";
+      });
+
+      zones.forEach((zone, i) => {
+        const scale = 1 + Math.sin(t * 1.5 + i) * 0.09;
+        zone.style.transform = "translate(-50%,-50%) scale(" + scale + ")";
+      });
+    }
+
+    const feedPool = [
+      ["Austin corridor synchronized", "Fleet path stability rose across central telemetry lanes.", "var(--blue)"],
+      ["Los Angeles cluster elevated", "High-density urban activity remained above rolling baseline.", "var(--orange)"],
+      ["New York safer-zone gain", "Predictive safety score improved across the northeastern segment.", "var(--green)"],
+      ["Bay Area growth spike", "Vehicle learning volume increased across coastal signal corridors.", "var(--blue)"],
+      ["Phoenix response normalized", "Urban traffic smoothing reduced incident-model pressure.", "var(--green)"],
+      ["Dallas corridor active", "Cross-state routing intensity remains elevated this cycle.", "var(--orange)"]
+    ];
+
+    let feedIndex = 0;
+
+    function renderFeed(){
+      const items = [];
+      for(let i = 0; i < 4; i++){
+        const item = feedPool[(feedIndex + i) % feedPool.length];
+        items.push(`
+          <li>
+            <div class="feed-dot" style="background:${item[2]}; color:${item[2]};"></div>
+            <div class="feed-main">
+              <div class="feed-title">${item[0]}</div>
+              <div class="feed-sub">${item[1]}</div>
+            </div>
+          </li>
+        `);
+      }
+      feedEl.innerHTML = items.join("");
+      feedIndex = (feedIndex + 1) % feedPool.length;
+    }
+
+    updateStats();
+    animateTelemetry();
+    renderFeed();
+
+    setInterval(updateStats, 1000);
+    setInterval(animateTelemetry, 120);
+    setInterval(renderFeed, 3500);
+  </script>
 </body>
 </html>
