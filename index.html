@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FSD Safety Monitor</title>
+
   <link rel="preconnect" href="fonts.googleapis.com">
   <link rel="preconnect" href="fonts.gstatic.com" crossorigin>
   <link href="fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -11,47 +12,81 @@
 
   <style>
     :root {
-      --bg: #07111b;
-      --panel: rgba(15, 23, 36, 0.84);
+      --bg-1: #08111b;
+      --bg-2: #0c1724;
+      --panel: rgba(15, 23, 36, 0.88);
       --panel-border: rgba(255,255,255,0.08);
-      --text: #e8eef7;
-      --muted: #97a5b6;
+      --text: #e7eef8;
+      --muted: #95a3b5;
       --blue: #63b3ff;
       --green: #56e39f;
-      --orange: #ff936a;
+      --orange: #ff9a6c;
       --purple: #d4a5ff;
-      --shadow: 0 18px 40px rgba(0,0,0,0.28);
+      --shadow: 0 20px 45px rgba(0,0,0,0.28);
+      --radius: 22px;
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       margin: 0;
       font-family: "Inter", sans-serif;
       color: var(--text);
       background:
-        radial-gradient(circle at top left, rgba(99,179,255,0.16), transparent 28%),
+        radial-gradient(circle at top left, rgba(99,179,255,0.14), transparent 26%),
         radial-gradient(circle at top right, rgba(212,165,255,0.12), transparent 24%),
-        linear-gradient(180deg, #09121d 0%, #07111b 100%);
+        linear-gradient(180deg, var(--bg-2) 0%, var(--bg-1) 100%);
     }
 
     .page {
-      max-width: 1220px;
+      max-width: 1240px;
       margin: 0 auto;
-      padding: 24px 18px 32px;
+      padding: 24px 18px 34px;
     }
 
     .hero {
-      background: linear-gradient(135deg, rgba(17,27,42,0.94), rgba(11,18,28,0.88));
+      background: linear-gradient(135deg, rgba(18,28,43,0.95), rgba(11,17,28,0.90));
       border: 1px solid var(--panel-border);
-      border-radius: 24px;
-      padding: 24px;
+      border-radius: 28px;
+      padding: 26px;
       box-shadow: var(--shadow);
       backdrop-filter: blur(12px);
       margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      top: -60px;
+      right: -40px;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: rgba(99,179,255,0.12);
+      filter: blur(40px);
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      left: -50px;
+      bottom: -80px;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: rgba(212,165,255,0.10);
+      filter: blur(40px);
+      pointer-events: none;
     }
 
     .eyebrow {
+      position: relative;
+      z-index: 1;
       color: var(--blue);
       font-size: 0.78rem;
       font-weight: 800;
@@ -61,19 +96,26 @@
     }
 
     h1 {
+      position: relative;
+      z-index: 1;
       margin: 0;
       font-size: clamp(2rem, 4vw, 3rem);
-      line-height: 1.05;
+      line-height: 1.04;
+      letter-spacing: -0.04em;
     }
 
     .subtitle {
+      position: relative;
+      z-index: 1;
       margin-top: 10px;
       color: var(--muted);
-      font-size: 1rem;
       max-width: 760px;
+      line-height: 1.55;
     }
 
     .stats {
+      position: relative;
+      z-index: 1;
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 16px;
@@ -85,7 +127,13 @@
       border: 1px solid var(--panel-border);
       border-radius: 18px;
       padding: 18px;
-      min-height: 110px;
+      min-height: 112px;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(99,179,255,0.28);
     }
 
     .stat-label {
@@ -95,7 +143,7 @@
     }
 
     .stat-value {
-      font-size: clamp(1.5rem, 2.7vw, 2.2rem);
+      font-size: clamp(1.55rem, 2.6vw, 2.2rem);
       font-weight: 800;
       letter-spacing: -0.03em;
     }
@@ -121,52 +169,88 @@
       font: inherit;
       font-weight: 600;
       cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .tab-btn:hover {
+      transform: translateY(-1px);
+      border-color: rgba(99,179,255,0.30);
     }
 
     .tab-btn.active {
       background: rgba(99,179,255,0.12);
       color: var(--blue);
-      border-color: rgba(99,179,255,0.5);
+      border-color: rgba(99,179,255,0.50);
     }
 
-    .pane { display: none; }
-    .pane.active { display: block; }
+    .pane {
+      display: none;
+    }
 
-    .map-shell, .info-shell {
+    .pane.active {
+      display: block;
+    }
+
+    .map-shell,
+    .info-shell {
       background: var(--panel);
       border: 1px solid var(--panel-border);
-      border-radius: 22px;
-      box-shadow: var(--shadow);
+      border-radius: var(--radius);
       overflow: hidden;
+      box-shadow: var(--shadow);
     }
 
-    .map-head, .info-head {
+    .map-head,
+    .info-head {
       padding: 16px 18px;
       border-bottom: 1px solid var(--panel-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
     }
 
-    .map-title, .info-title {
+    .map-title,
+    .info-title {
       font-size: 1rem;
       font-weight: 700;
     }
 
-    .map-subtitle, .info-subtitle {
+    .map-subtitle,
+    .info-subtitle {
       color: var(--muted);
       font-size: 0.9rem;
       margin-top: 4px;
     }
 
-    #us-map, #world-map {
-      height: 64vh;
-      min-height: 500px;
+    #us-map,
+    #world-map {
       width: 100%;
+      height: 520px;
       background: #0d1723;
     }
 
     .info-body {
       padding: 20px;
       color: var(--muted);
-      line-height: 1.7;
+      line-height: 1.75;
+    }
+
+    .pill-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .pill {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--panel-border);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 9px 12px;
+      font-size: 0.9rem;
     }
 
     footer {
@@ -176,13 +260,30 @@
       padding: 18px 0 6px;
     }
 
-    @media (max-width: 960px) {
-      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    @media (max-width: 980px) {
+      .stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
     }
 
-    @media (max-width: 620px) {
-      .stats { grid-template-columns: 1fr; }
-      #us-map, #world-map { min-height: 400px; height: 54vh; }
+    @media (max-width: 640px) {
+      .page {
+        padding: 16px 12px 24px;
+      }
+
+      .hero {
+        padding: 18px;
+        border-radius: 20px;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      #us-map,
+      #world-map {
+        height: 420px;
+      }
     }
   </style>
 </head>
@@ -193,7 +294,7 @@
       <h1>FSD Safety Monitor</h1>
       <div class="subtitle">
         A modern simulation dashboard showing estimated mileage growth, avoided crashes,
-        financial impact, and live map activity.
+        financial impact, and live vehicle activity.
       </div>
 
       <div class="stats">
@@ -225,8 +326,10 @@
     <section id="us" class="pane active">
       <div class="map-shell">
         <div class="map-head">
-          <div class="map-title">US Activity Map</div>
-          <div class="map-subtitle">Live visual activity zones</div>
+          <div>
+            <div class="map-title">US Activity Map</div>
+            <div class="map-subtitle">Live activity zones with moving vehicle markers</div>
+          </div>
         </div>
         <div id="us-map"></div>
       </div>
@@ -235,8 +338,10 @@
     <section id="world" class="pane">
       <div class="map-shell">
         <div class="map-head">
-          <div class="map-title">Global Activity Map</div>
-          <div class="map-subtitle">Regional FSD growth zones</div>
+          <div>
+            <div class="map-title">Global Activity Map</div>
+            <div class="map-subtitle">Regional FSD growth zones across major markets</div>
+          </div>
         </div>
         <div id="world-map"></div>
       </div>
@@ -245,12 +350,21 @@
     <section id="info" class="pane">
       <div class="info-shell">
         <div class="info-head">
-          <div class="info-title">How the updates work</div>
-          <div class="info-subtitle">Time-based counter simulation with animated maps</div>
+          <div>
+            <div class="info-title">How the updates work</div>
+            <div class="info-subtitle">Time-based simulation with animated maps</div>
+          </div>
         </div>
         <div class="info-body">
           This dashboard updates every second from a starting mileage total and a fixed daily growth rate.
-          Crash avoidance, savings, and life impact are recalculated continuously. The circles on the maps pulse in real time to simulate ongoing activity.
+          Crash avoidance, savings, and life impact are recalculated continuously. The circles on both maps pulse over time, and the US map includes moving vehicle markers for a more live operations feel.
+
+          <div class="pill-row">
+            <div class="pill">Live counters</div>
+            <div class="pill">Animated circles</div>
+            <div class="pill">Moving vehicle dots</div>
+            <div class="pill">Stable tab switching</div>
+          </div>
         </div>
       </div>
     </section>
@@ -301,23 +415,28 @@
     const usMap = L.map("us-map");
     const worldMap = L.map("world-map");
 
-    L.tileLayer(darkTiles, { attribution: "© OpenStreetMap & Carto" }).addTo(usMap);
-    L.tileLayer(darkTiles, { attribution: "© OpenStreetMap & Carto" }).addTo(worldMap);
+    L.tileLayer(darkTiles, {
+      attribution: "© OpenStreetMap & Carto"
+    }).addTo(usMap);
+
+    L.tileLayer(darkTiles, {
+      attribution: "© OpenStreetMap & Carto"
+    }).addTo(worldMap);
 
     usMap.setView([39.5, -98.35], 4);
     worldMap.setView([20, 10], 2);
 
     const usZones = [
-      { lat: 34.05, lng: -118.24, baseRadius: 220000, color: "#ff936a", popup: "Los Angeles • High activity" },
+      { lat: 34.05, lng: -118.24, baseRadius: 220000, color: "#ff9a6c", popup: "Los Angeles • High activity" },
       { lat: 37.77, lng: -122.42, baseRadius: 180000, color: "#63b3ff", popup: "San Francisco • Growth zone" },
-      { lat: 29.76, lng: -95.36, baseRadius: 210000, color: "#ff936a", popup: "Houston • High activity" },
+      { lat: 29.76, lng: -95.36, baseRadius: 210000, color: "#ff9a6c", popup: "Houston • High activity" },
       { lat: 40.71, lng: -74.00, baseRadius: 140000, color: "#56e39f", popup: "New York • Safer zone" }
     ];
 
     const worldZones = [
       { lat: 51.50, lng: -0.12, baseRadius: 160000, color: "#63b3ff", popup: "London • Growth zone" },
       { lat: 48.85, lng: 2.35, baseRadius: 160000, color: "#63b3ff", popup: "Paris • Growth zone" },
-      { lat: 35.68, lng: 139.69, baseRadius: 210000, color: "#ff936a", popup: "Tokyo • High activity" },
+      { lat: 35.68, lng: 139.69, baseRadius: 210000, color: "#ff9a6c", popup: "Tokyo • High activity" },
       { lat: -33.87, lng: 151.21, baseRadius: 170000, color: "#56e39f", popup: "Sydney • Safer zone" }
     ];
 
@@ -325,7 +444,7 @@
       L.circle([zone.lat, zone.lng], {
         color: zone.color,
         fillColor: zone.color,
-        fillOpacity: 0.30,
+        fillOpacity: 0.28,
         radius: zone.baseRadius,
         weight: 2
       }).addTo(usMap).bindPopup(zone.popup)
@@ -335,27 +454,58 @@
       L.circle([zone.lat, zone.lng], {
         color: zone.color,
         fillColor: zone.color,
-        fillOpacity: 0.30,
+        fillOpacity: 0.28,
         radius: zone.baseRadius,
         weight: 2
       }).addTo(worldMap).bindPopup(zone.popup)
     );
 
-    function animateCircles() {
+    const movingDots = [
+      { lat: 34.05, lng: -118.24, color: "#63b3ff", dx: 0.03, dy: 0.02 },
+      { lat: 36.17, lng: -115.14, color: "#56e39f", dx: 0.02, dy: -0.01 },
+      { lat: 32.78, lng: -96.80, color: "#ff9a6c", dx: -0.02, dy: 0.015 },
+      { lat: 41.88, lng: -87.63, color: "#63b3ff", dx: 0.015, dy: 0.01 },
+      { lat: 40.71, lng: -74.00, color: "#d4a5ff", dx: -0.01, dy: 0.02 }
+    ];
+
+    const usVehicles = movingDots.map(dot =>
+      L.circleMarker([dot.lat, dot.lng], {
+        radius: 5,
+        color: dot.color,
+        fillColor: dot.color,
+        fillOpacity: 1,
+        weight: 1
+      }).addTo(usMap)
+    );
+
+    function animateMap() {
       const t = Date.now() / 1000;
+
       usCircles.forEach((circle, i) => {
         const base = usZones[i].baseRadius;
         circle.setRadius(base * (1 + 0.08 * Math.sin(t * 1.6 + i)));
       });
+
       worldCircles.forEach((circle, i) => {
         const base = worldZones[i].baseRadius;
         circle.setRadius(base * (1 + 0.08 * Math.sin(t * 1.3 + i)));
+      });
+
+      usVehicles.forEach((marker, i) => {
+        const dot = movingDots[i];
+        const newLat = dot.lat + Math.sin(t + i) * dot.dy;
+        const newLng = dot.lng + Math.cos(t + i) * dot.dx;
+        marker.setLatLng([newLat, newLng]);
+
+        const pulse = 4 + Math.abs(Math.sin(t * 2 + i)) * 3;
+        marker.setRadius(pulse);
       });
     }
 
     function showTab(id, button) {
       document.querySelectorAll(".pane").forEach(pane => pane.classList.remove("active"));
       document.getElementById(id).classList.add("active");
+
       document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
       button.classList.add("active");
 
@@ -372,16 +522,18 @@
     }
 
     updateStats();
-    animateCircles();
+    animateMap();
 
     setInterval(updateStats, 1000);
-    setInterval(animateCircles, 1000);
+    setInterval(animateMap, 120);
 
     window.addEventListener("load", () => {
       setTimeout(() => {
         usMap.invalidateSize();
         worldMap.invalidateSize();
-      }, 400);
+        usMap.setView([39.5, -98.35], 4);
+        worldMap.setView([20, 10], 2);
+      }, 500);
     });
 
     window.addEventListener("resize", () => {
