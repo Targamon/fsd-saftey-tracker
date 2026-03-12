@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>FSD Safety Monitor</title>
+<link rel="stylesheet" href="unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <style>
 
@@ -196,9 +198,7 @@ financial impact, and live vehicle activity.
 
 <div class="map-wrap">
 
-<iframe class="real-map"
-src="www.openstreetmap.org/#map=4/39/-98">
-</iframe>
+<div id="map" style="height:100%;width:100%"></div>
 
 <div class="overlay">
 
@@ -335,7 +335,11 @@ btn.classList.add("active")
 setInterval(updateStats,1000)
 
 updateStats()
+const map = L.map('map').setView([39, -98], 4);
 
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19
+}).addTo(map);
 </script>
 
 </body>
